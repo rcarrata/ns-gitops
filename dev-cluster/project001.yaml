@@ -8,7 +8,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: products-app/overlays/dev
+    path: dev-cluster/namespaces/project001
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
     targetRevision: main
   syncPolicy:
