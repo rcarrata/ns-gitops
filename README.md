@@ -1,2 +1,3 @@
-# ns-gitops
+# NaaS using GitOps
+
 Repository for deploy GitOps examples
