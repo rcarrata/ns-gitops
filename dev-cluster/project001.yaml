@@ -1,15 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: products-app
+  name: dev-cluster-project001
 spec:
   destination:
-    namespace: products
+    namespace: project001
     server: https://kubernetes.default.svc
   project: default
   source:
     path: products-app/overlays/dev
-    repoURL: https://github.com/rcarrata/rcs-apps
+    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
     targetRevision: main
   syncPolicy:
     automated:
