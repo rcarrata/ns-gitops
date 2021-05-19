@@ -6,3 +6,4 @@ namespace: openshift-gitops
 resources:
 - project001.yaml
 - project002.yaml
+- project003.yaml
