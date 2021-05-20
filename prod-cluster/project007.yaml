@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-cluster-project007
+spec:
+  destination:
+    namespace: project007
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: dev-cluster/namespaces/project007
+    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
