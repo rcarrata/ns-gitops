@@ -4,6 +4,6 @@ kind: Kustomization
 namespace: openshift-gitops
 
 resources:
-- project004.yaml
-- project005.yaml
-- project006.yaml
+- project007.yaml
+#- project008.yaml
+#- project009.yaml
