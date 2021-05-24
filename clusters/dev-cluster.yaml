@@ -1,15 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dev-cluster-project005
+  name: dev-cluster
 spec:
   destination:
-    namespace: project005
+    namespace: openshift-gitops
     server: https://kubernetes.default.svc
-  project: default
+  project: dev-envs
   source:
-    path: dev-cluster/namespaces/project005
-    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
+    path: dev-cluster
+    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-gitops
     targetRevision: main
   syncPolicy:
     automated:
