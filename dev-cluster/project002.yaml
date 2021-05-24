@@ -6,7 +6,7 @@ spec:
   destination:
     namespace: project002
     server: https://kubernetes.default.svc
-  project: default
+  project: dev-envs
   source:
     path: dev-cluster/namespaces/project002
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
