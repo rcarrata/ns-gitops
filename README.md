@@ -1,3 +1,9 @@
 # NaaS using GitOps
 
-Repository for deploy GitOps examples
+Installation Phase for Openshift GitOps
+
+## Install Openshift GitOps with Dex OAuth
+
+```
+until oc apply -k bootstrap/; do sleep 2; done
+```

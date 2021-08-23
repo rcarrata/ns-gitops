@@ -1,0 +1,4 @@
+resources:
+  - 1.sub.yaml
+  - 2.openshift-gitops-patch.yaml
+  - 3.rbac.yaml
