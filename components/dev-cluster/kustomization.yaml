@@ -3,6 +3,7 @@ kind: Kustomization
 
 namespace: openshift-gitops
 
-bases:
-- ../argo-apps
-- ../argo-projects
+resources:
+- project001.yaml
+- project002.yaml
+- project003.yaml

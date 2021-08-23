@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prod-cluster-project009
+spec:
+  destination:
+    namespace: project009
+    server: https://kubernetes.default.svc
+  project: prod-envs
+  source:
+    path: prod-cluster/namespaces/project009
+    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

@@ -1,15 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dev-cluster
+  name: staging-cluster-project004
 spec:
   destination:
-    namespace: openshift-gitops
+    namespace: project004
     server: https://kubernetes.default.svc
-  project: dev-envs
+  project: staging-envs
   source:
-    path: dev-cluster
-    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-gitops
+    path: staging-cluster/namespaces/project004
+    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
     targetRevision: main
   syncPolicy:
     automated:
