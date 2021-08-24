@@ -1,20 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: todo-app
-  namespace: openshift-gitops
+  name: dev-env-todo
 spec:
   destination:
     namespace: todo
     server: https://kubernetes.default.svc
-  project: default
+  project: apps-project
   source:
     path: apps/todo
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-    targetRevision: app-syncwaves
+    targetRevision: app-of-apps
   syncPolicy:
     automated:
       prune: true
-      selfHeal: false
+      selfHeal: true
     syncOptions:
     - CreateNamespace=true
