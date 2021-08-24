@@ -12,7 +12,7 @@ oc apply -k deploy.yaml
 
 [App of Apps Pattern](https://argoproj.github.io/argo-cd/operator-manual/cluster-bootstrapping/#app-of-apps-pattern)
 
-<img align="center" width="750" src="docs/pic1.png">
+<img align="center" width="450" src="docs/pic1.png">
 
 ## Delete App of Apps pattern
 
