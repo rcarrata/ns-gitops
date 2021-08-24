@@ -2,30 +2,26 @@
 
 Repository for deploy GitOps examples
 
-
-
-## Deploy TODO app
+## Deploy Dev Environment
 
 ```
-oc apply -f todo-application.yaml
+oc apply -k deploy.yaml
 ```
-
-NOTE: the app it's exposed in the OCP_ROUTE/todo.html
-
-## Delete TODO app (in cascade)
-
-* To delete all the objects generated use:
-
-```
-kubectl patch app todo-app -n openshift-gitops -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge
-```
-
-```
-kubectl delete app todo-app -n openshift-gitops
-```
-
-* [Delete in cascade](https://argoproj.github.io/argo-cd/user-guide/app_deletion/#about-the-deletion-finalizer)
 
 ## Argo App of Apps Pattern
 
 [App of Apps Pattern](https://argoproj.github.io/argo-cd/operator-manual/cluster-bootstrapping/#app-of-apps-pattern)
+
+## Delete App of Apps pattern
+
+To delete the app of apps pattern, the deletion finalizer needs to be applied to each child of the app of apps, because needs to have this in order to achieve the [delete in cascade](https://argoproj.github.io/argo-cd/user-guide/app_deletion/#about-the-deletion-finalizer)
+
+```
+for i in $(oc get applications -n openshift-gitops | awk '{print $1}' | grep -v NAME); do kubectl patch app $i -n o
+penshift-gitops -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge; done
+```
+
+```
+kubectl delete app dev-env -n openshift-gitops
+```
+
