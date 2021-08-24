@@ -2,6 +2,28 @@
 
 Repository for deploy GitOps examples
 
+## Deploy TODO app
+
+```
+oc apply -f todo-application.yaml
+```
+
+NOTE: the app it's exposed in the OCP_ROUTE/todo.html
+
+## Delete TODO app (in cascade)
+
+* To delete all the objects generated use:
+
+```
+kubectl patch app todo-app -n openshift-gitops -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge
+```
+
+```
+kubectl delete app todo-app -n openshift-gitops
+```
+
+* [Delete in cascade](https://argoproj.github.io/argo-cd/user-guide/app_deletion/#about-the-deletion-finalizer)
+
 ## SyncWaves
 
 A Syncwave is a way to order how Argo CD applies the manifests that are stored in git. All manifests have a wave of zero by default, but you can set these by using the argocd.argoproj.io/sync-wave annotation.
@@ -16,10 +38,10 @@ When Argo CD starts a sync action, the manifest get placed in the following orde
 
 * The Phase that they’re in (we’ll cover phases in the next section)
 * The wave the resource is annotated in (starting from the lowest value to the highest)
-* By kind (Namspaces first, then services, then deployments, etc …​)
+* By kind (Namespaces first, then services, then deployments, etc …)
 * By name (ascending order)
 
-* [Sync Waves Documentation](https://argoproj.github.io/argo-cd/user-guide/sync-waves/#sync-phases-and-waves)
+* [**Sync Waves Documentation**](https://argoproj.github.io/argo-cd/user-guide/sync-waves/#sync-phases-and-waves)
 
 ## Resource Hooks
 
