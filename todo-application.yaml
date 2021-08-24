@@ -1,20 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bgdk-app
+  name: todo-app
   namespace: openshift-gitops
 spec:
   destination:
-    namespace: bgdk
+    namespace: todo
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: apps/bgd/overlays/bgdk
+    path: apps/todo
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-    targetRevision: single-app
+    targetRevision: app-syncwaves
   syncPolicy:
     automated:
       prune: true
-      selfHeal: true
+      selfHeal: false
     syncOptions:
     - CreateNamespace=true

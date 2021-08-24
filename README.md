@@ -1,43 +1,50 @@
-# NaaS using GitOps - Simple App Approach
+# NaaS using GitOps - TODO App with SyncWaves and Hooks
 
 Repository for deploy GitOps examples
 
-## Simple App GitOps
+## SyncWaves
 
-* Deploy the application with GitOps:
-
-```
-oc apply -f bgd-app.yaml
-```
-
-NOTE: This app have the auto-sync / self-Heal to False.
-
-* Introduce a manual change:
+A Syncwave is a way to order how Argo CD applies the manifests that are stored in git. All manifests have a wave of zero by default, but you can set these by using the argocd.argoproj.io/sync-wave annotation.
 
 ```
-oc -n bgd patch deploy/bgd --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/env/0/value", "value":"green"}]'
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 ```
 
-* Enable the autosync:
+When Argo CD starts a sync action, the manifest get placed in the following order:
+
+* The Phase that they’re in (we’ll cover phases in the next section)
+* The wave the resource is annotated in (starting from the lowest value to the highest)
+* By kind (Namspaces first, then services, then deployments, etc …​)
+* By name (ascending order)
+
+* [Sync Waves Documentation](https://argoproj.github.io/argo-cd/user-guide/sync-waves/#sync-phases-and-waves)
+
+## Resource Hooks
+
+Controlling your sync operation can be futher redefined by using hooks. These hooks can run before, during, and after a sync operation. These hooks are:
+
+* **PreSync** - Runs before the sync operation. This can be something like a database backup before a schema change
+* **Sync** - Runs after PreSync has successfully ran. This will run alongside your normal manifesets.
+* **PostSync** - Runs after Sync has ran successfully. This can be something like a Slack message or an email notification.
+* **SyncFail** - Runs if the Sync operation as failed. This is also used to send notifications or do other evasive actions.
 
 ```
-oc patch application/bgd-app -n openshift-gitops --type=merge -p='{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: PreSync
 ```
 
-## Simple App with Kustomize
+You can also have the hooks be deleted after a successful/unsuccessful run.
 
-* Deploy a Kustomized Application:
+* **HookSucceeded** - The resouce will be deleted after it has succeeded.
+* **HookFailed** - The resource will be deleted if it has failed.
+* **BeforeHookCreation** - The resource will be deleted before a new one is created (when a new sync is triggered).
 
 ```
-oc apply -f bgdk-app.yaml
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 ```
-
-* [Kustomization](https://kubectl.docs.kubernetes.io/guides/introduction/kustomize/)
-
-* [Examples Kustomize](https://github.com/kubernetes-sigs/kustomize/tree/master/examples)
-
-* [PatchesJSON6902](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patchesjson6902/)
-
-* [Examples Inline Patches](https://github.com/kubernetes-sigs/kustomize/blob/master/examples/inlinePatch.md#inline-patch-for-patchesjson6902)
-
-* [Documentation Patches](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patchesstrategicmerge/)
