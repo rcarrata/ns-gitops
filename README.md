@@ -1,11 +1,11 @@
-# NaaS using GitOps - App of Apps Pattern
+# NaaS using GitOps - Multi Cluster deployment
 
 Repository for deploy GitOps examples
 
 ## Deploy Dev Environment
 
 ```
-oc apply -k deploy.yaml
+oc apply -k deploy
 ```
 
 ## Application Sets

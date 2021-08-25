@@ -1,27 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: dev-env-apps
+  name: bgd
   namespace: openshift-gitops
 spec:
   generators:
-  - git:
-      repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-      revision: appsets
-      directories:
-      - path: apps/*
+  - clusters: {}
   template:
     metadata:
-      name: '{{path.basename}}'
+      name: '{{name}}-bgd'
     spec:
-      project: apps-project
+      project: default
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
       source:
         repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-        targetRevision: appsets
-        path: '{{path}}'
+        targetRevision: multicluster
+        path: cluster-generator/overlays/dev/
       destination:
-        server: https://kubernetes.default.svc
+        server: '{{server}}'
+        namespace: bgd
