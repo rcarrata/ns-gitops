@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-cluster-app-httpbin
+spec:
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  project: dev-envs
+  source:
+    path: dev-cluster/apps/httpbin-app
+    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
+    targetRevision: multienv
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
