@@ -28,7 +28,7 @@ You can read more about ApplicationSets from the [ApplicationSets documentation 
 Just delete the application set and the ArgoCD ApplicationSet contoller will do the magic!
 
 ```
-oc delete -k deploy.yaml
+oc delete applicationset --all -n openshift-gitops
 ```
 
 ## Links of interest
