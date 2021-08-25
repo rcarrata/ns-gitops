@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: dev-env-apps
+  name: dev-env-operators
   namespace: openshift-gitops
 spec:
   generators:
@@ -14,7 +14,7 @@ spec:
     metadata:
       name: '{{path.basename}}'
     spec:
-      project: default
+      project: apps-project
       syncPolicy:
         automated:
           prune: true
