@@ -10,7 +10,7 @@ spec:
   source:
     path: prod-cluster/namespaces/project009
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-    targetRevision: main
+    targetRevision: multienv
   syncPolicy:
     automated:
       prune: true

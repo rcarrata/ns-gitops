@@ -3,6 +3,6 @@ kind: Kustomization
 
 resources:
 - project001.yaml
-#- project002.yaml
+- project002.yaml
 - project003.yaml
 - operators.yaml
