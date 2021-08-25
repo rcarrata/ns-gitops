@@ -8,13 +8,8 @@ Repository for deploy GitOps examples
 oc apply -k deploy.yaml
 ```
 
-## Argo App of Apps Pattern
+## Delete ApplicationSet for Apps
 
-You can create an app that creates other apps, which in turn can create other apps. This allows you to declaratively manage a group of apps that can be deployed and configured in concert.
-
-[App of Apps Pattern Documentation](https://argoproj.github.io/argo-cd/operator-manual/cluster-bootstrapping/#app-of-apps-pattern)
-
-<img align="center" width="450" src="docs/pic1.png">
 
 ## Delete App of Apps pattern
 
