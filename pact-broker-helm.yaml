@@ -1,17 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bgdk-app
+  name: pact-broker
   namespace: openshift-gitops
 spec:
   destination:
-    namespace: bgdk
+    namespace: pact-broker
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: apps/bgd/overlays/bgdk
-    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-    targetRevision: single-app
+    helm:
+      parameters:
+       - name: secrets.values.pactBrokerAdminPassword
+         value: "admin"
+    chart: pact-broker
+    repoURL: https://redhat-cop.github.io/helm-charts
+    targetRevision: 0.0.8
   syncPolicy:
     automated:
       prune: true
