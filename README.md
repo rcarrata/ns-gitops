@@ -5,7 +5,7 @@ Repository for deploy GitOps examples
 ## Deploy MultiEnv Environment
 
 ```
-oc apply -k deploy.yaml
+oc apply -k deploy/
 ```
 
 ## Changing projects in this scenario
