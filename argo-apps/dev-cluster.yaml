@@ -8,7 +8,7 @@ spec:
     server: https://kubernetes.default.svc
   project: dev-envs
   source:
-    path: dev-cluster
+    path: components/dev-cluster
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-gitops
     targetRevision: config
   syncPolicy:
