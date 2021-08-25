@@ -6,4 +6,4 @@ namespace: openshift-gitops
 resources:
 - project004.yaml
 #- project005.yaml
-#- project006.yaml
+- project006.yaml
