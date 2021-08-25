@@ -1,4 +1,4 @@
-# NaaS using GitOps - App of Apps Pattern
+# NaaS using GitOps - Application Sets
 
 Repository for deploy GitOps examples
 
