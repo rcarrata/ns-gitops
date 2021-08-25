@@ -30,7 +30,6 @@ spec:
     policy: 'g, system:cluster-admins, role:admin'
     scopes: '[groups]'
   controller:
-    processors: {}
     resources:
       limits:
         cpu: '2'
