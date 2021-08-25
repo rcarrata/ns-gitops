@@ -6,3 +6,4 @@ resources:
 - project002.yaml
 - project003.yaml
 - operators.yaml
+- apps.yaml
