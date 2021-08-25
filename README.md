@@ -20,17 +20,17 @@ To delete the app of apps pattern, the deletion finalizer needs to be applied to
 for i in $(oc get applications -n openshift-gitops | awk '{print $1}' | grep -v NAME); do kubectl patch app $i -n openshift-gitops -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge; done
 ```
 
-* To delete staging-cluster envs
+* To delete dev-cluster envs
 ```
-kubectl delete app staging-cluster -n openshift-gitops
-```
-
-* To delete staging-cluster envs
-```
-kubectl delete app staging-cluster -n openshift-gitops
+kubectl delete app dev-cluster -n openshift-gitops
 ```
 
 * To delete staging-cluster envs
 ```
 kubectl delete app staging-cluster -n openshift-gitops
+```
+
+* To delete prod-cluster envs
+```
+kubectl delete app prod-cluster -n openshift-gitops
 ```

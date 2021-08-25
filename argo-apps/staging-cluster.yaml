@@ -10,7 +10,7 @@ spec:
   source:
     path: components/staging-cluster
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-gitops
-    targetRevision: config
+    targetRevision: multienv
   syncPolicy:
     automated:
       prune: true
