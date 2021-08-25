@@ -5,5 +5,5 @@ resources:
 - project001.yaml
 - project002.yaml
 - project003.yaml
-#- operators.yaml
-#- apps.yaml
+- operators.yaml
+- apps.yaml
