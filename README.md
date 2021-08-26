@@ -78,7 +78,7 @@ https://api.ocp4.xxxx.com:6443                         cluster1    1.21     Succ
 https://kubernetes.default.svc                             in-cluster  1.20     Successful
 ```
 
-<img align="center" width="450" src="docs/pic1.png">
+<img align="center" width="650" src="docs/pic1.png">
 
 * https://argoproj.github.io/argo-cd/operator-manual/declarative-setup/#clusters
 
@@ -88,7 +88,7 @@ https://kubernetes.default.svc                             in-cluster  1.20     
 oc apply -k deploy
 ```
 
-<img align="center" width="450" src="docs/pic2.png">
+<img align="center" width="650" src="docs/pic2.png">
 
 ## Application Sets
 
