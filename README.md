@@ -12,7 +12,7 @@ helm repo add redhat-cop https://redhat-cop.github.io/helm-charts
 
 * Deploy the application with GitOps:
 
-<img align="center" width="650" src="docs/pic1.png">
+<img align="center" width="350" src="docs/pic1.png">
 
 ```
 oc apply -f pact-broker-helm.yaml
