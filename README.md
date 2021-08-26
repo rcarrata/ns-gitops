@@ -90,9 +90,15 @@ oc apply -k deploy
 
 <img align="center" width="650" src="docs/pic2.png">
 
-## Application Sets
+## Application Sets with Multi Clustering Environments
 
-* [ApplicationSets documentation site](https://argocd-applicationset.readthedocs.io/en/stable/).
+In Argo CD, managed clusters are stored within Secrets in the Argo CD namespace. The ApplicationSet
+controller uses those same Secrets to generate parameters to identify and target available clusters.
+
+For each cluster registered with Argo CD, the Cluster generator produces parameters based on the
+list of items found within the cluster secret.
+
+* [ApplicationSets documentation site](https://argocd-applicationset.readthedocs.io/en/stable/)
 
 * [Generator Cluster Documentation](https://argocd-applicationset.readthedocs.io/en/stable/Generators-Cluster/)
 
