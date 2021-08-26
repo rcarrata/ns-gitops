@@ -2,6 +2,14 @@
 
 Repository for deploy GitOps examples
 
+## Prereqs
+
+* Checkout to this specific branch
+
+```
+git checkout multicluster
+```
+
 ## Login in ArgoCD Server with argocd cli
 
 * Login with the admin user with the argocd cli
