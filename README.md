@@ -25,3 +25,6 @@ Repository for deploy GitOps examples
 * [Demo 6 Deploying ApplicationSets](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/appsets)
 
 * [Demo 7 Deploying Multi Clustering with ApplicationSets](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/multicluster)
+
+NOTE: each demo it's in a specific branch for avoiding overlappings, so execute git checkout
+"branch" to the specific branch in order to execute the commands.
