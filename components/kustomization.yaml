@@ -6,4 +6,3 @@ resources:
 - co.yaml
 - mesh-op.yaml
 - todo.yaml
-- helm-quarkus.yaml
