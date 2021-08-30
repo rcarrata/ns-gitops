@@ -2,11 +2,13 @@
 
 Repository for deploy GitOps examples
 
+![alt text](https://raw.githubusercontent.com/jgwest/docs/app-set-introduction-blog/assets/openshift-gitops-banner.png)
+
 ## Prerequisites
 
 * Openshift 4.7+ Cluster
 
-* [Bootstrap Openshift Pipelines / ArgoCD](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/bootstrap)
+* [Bootstrap Openshift GitOps / ArgoCD](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/bootstrap)
 
 ## Index of Demos
 
