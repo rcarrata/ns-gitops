@@ -1,4 +1,4 @@
-# NaaS using GitOps
+# From Zero to Hero using OpenShift GitOps
 
 Repository for deploy GitOps examples
 
