@@ -26,7 +26,7 @@ spec:
   dex:
     openShiftOAuth: true
   rbac:
-    defaultPolicy: 'role:readonly'
+    defaultPolicy: 'role:admin'
     policy: 'g, system:cluster-admins, role:admin'
     scopes: '[groups]'
   controller:
