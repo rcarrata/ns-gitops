@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: dev-env-apps
+  namespace: openshift-gitops
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
+      revision: netpol
+      directories:
+      - path: apps/simpson-bouvier/overlays/*
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      project: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
+        targetRevision: netpol
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc

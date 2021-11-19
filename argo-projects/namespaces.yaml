@@ -1,0 +1,13 @@
+kind: Project
+apiVersion: project.openshift.io/v1
+metadata:
+  name: bouvier
+  labels:
+    house: bouvier
+---
+kind: Project
+apiVersion: project.openshift.io/v1
+metadata:
+  name: simpson
+  labels:
+    house: simpson
