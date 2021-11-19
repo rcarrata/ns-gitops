@@ -62,11 +62,50 @@ the 1, means that the traffic is OK, and the 0 are the NOK.
 ## Apply the first use case - Simpson Deny ALL
 
 ```
-oc apply -f netpol-simpson-deny-all.yaml
+oc apply -f argo-apps/netpol-simpson-deny-all.yaml
 ```
 
 ```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/instance: simpson-netpol-deny-all
+  name: default-deny-all
+  namespace: simpson
+spec:
+  podSelector: {}
+```
 
 ```
+bash run-checks.sh
+UVIER CONNECTIVITY
+## PATTY
+marge.simpson             : 0
+homer.simpson             : 0
+selma.bouvier             : 1
+
+## SELMA
+marge.simpson             : 0
+homer.simpson             : 0
+patty.bouvier             : 1
+
+SIMPSONS CONNECTIVITY
+## HOMER
+marge.simpson             : 0
+selma.bouvier             : 1
+patty.bouvier             : 1
+
+## MARGE
+Using config file: /container-helper/container-helper.yaml
+homer.simpson             : 0
+selma.bouvier             : 1
+patty.bouvier             : 1
+```
+
+All the traffic TO the simpson namespace is deny (even the same namespace). Traffic is allowed from the Simpson namespace to the Bouvier namespace.
+
+* Delete the netpol for apply the other use case
+
 
 
