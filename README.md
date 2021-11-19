@@ -59,7 +59,7 @@ the 1, means that the traffic is OK, and the 0 are the NOK.
   4. Scope: Namespace
 
 
-## Apply the first use case - Simpson Deny ALL
+## Use Case 1 - Simpson Deny ALL
 
 ```
 oc apply -f argo-apps/netpol-simpson-deny-all.yaml
@@ -107,5 +107,99 @@ All the traffic TO the simpson namespace is deny (even the same namespace). Traf
 
 * Delete the netpol for apply the other use case
 
+```
+kubectl patch app -n openshift-gitops simpson-netpol-deny-all  -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge
+kubectl delete app simpson-netpol-deny-all -n openshift-gitops
+```
 
+## Use Case 2 - Bouvier Deny ALL
+
+* In this case we are adding the DENY policy to the namespace Bouvier:
+
+```
+oc apply -f argo-apps/netpol-bouvier-deny-all.yaml
+```
+
+* As we can see the Bouvier netpol is denying all the ingress communications to the microservices in the Bouvier namespace:
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/instance: bouvier-netpol-deny-all
+  name: default-deny-all
+  namespace: bouvier
+spec:
+  podSelector: {}
+```
+
+* Once applied the network-policies we can check the communication from and to each microservice:
+
+```
+bash run-checks.sh
+BOUVIER CONNECTIVITY
+## PATTY
+marge.simpson             : 1
+homer.simpson             : 1
+selma.bouvier             : 0
+
+## SELMA
+marge.simpson             : 1
+homer.simpson             : 1
+patty.bouvier             : 0
+
+SIMPSONS CONNECTIVITY
+## HOMER
+marge.simpson             : 1
+selma.bouvier             : 0
+patty.bouvier             : 0
+
+## MARGE
+homer.simpson             : 1
+selma.bouvier             : 0
+patty.bouvier             : 0
+```
+
+All the traffic TO the Bouvier namespace is deny (even the same namespace). Traffic is allowed from the Bouvier namespace to the Simpson namespace.
+
+* Delete the netpol for apply the other use case
+
+```
+oc patch app -n openshift-gitops bouvier-netpol-deny-all  -p '{"metadata": {"finalizers": ["resourc
+es-finalizer.argocd.argoproj.io"]}}' --type merge
+
+oc delete app bouvier-netpol-deny-all -n openshift-gitops
+```
+
+## Use Case 3 - Bouvier allow internal communication
+
+* We will allow the communication in all the microservices that are in the same namespace, so Selma and Patty will be able to communicate each other:
+
+```
+oc apply -f argo-apps/netpol-bouvier.yaml
+```
+
+* If we check the network policy applied, we can see the that there is a ingress rule with the namespaceSelector with the label "house: bouvier":
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/instance: bouvier-netpol-deny-all
+  name: allow-from-bouvier-to-bouvier
+  namespace: bouvier
+spec:
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              house: bouvier
+  podSelector: {}
+  policyTypes:
+    - Ingress
+```
+
+## Use Case 4 - Bouvier allow communication from Marge
 
