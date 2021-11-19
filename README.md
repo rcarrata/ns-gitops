@@ -2,31 +2,29 @@
 
 Repository for deploy GitOps examples
 
-![alt text](https://raw.githubusercontent.com/jgwest/docs/app-set-introduction-blog/assets/openshift-gitops-banner.png)
+## Network Policies Demo with GitOps
 
-## Prerequisites
+* Provision Namespace and ArgoProjects for the demo:
 
-* Openshift 4.7+ Cluster
+```
+oc apply -k argo-projects/
+```
 
-* [Bootstrap Openshift GitOps / ArgoCD](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/bootstrap)
+* Deploy the ApplicationSet containing the Applications to be secured:
 
-## Index of Demos
+```
+oc apply -f argo-apps/dev-env-apps.yaml
+```
 
-* [Demo 1A Deploying Sample App with ArgoCD (kustomize)](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/single-app)
+* Check that the apps are working properly:
 
-* [Demo 1B Deploying Sample App with ArgoCD (helm)](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/single-app-helm)
+```
 
-* [Demo 2 Deploying Sample App using Kustomize](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/single-app#simple-app-with-kustomize)
+```
 
-* [Demo 3 Deploying Todo App using SyncWaves & Hooks](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/app-syncwaves)
+```
+oc -n bouvier exec -ti deploy/patty-deployment -- ./container-helper check
+oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
+oc -n simpson exec -ti deploy/patty-deployment -- ./container-helper check
+oc -n simpson exec -ti deploy/patty-deployment -- ./container-helper check
 
-* [Demo 4 Deploying App of Apps Pattern (multi-apps)](https://github.com/RedHat-EMEA-SSA-Team/ns-apps/tree/app-of-apps)
-
-* [Demo 5 Deploying Multi Environment (argo app of apps)](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/multienv)
-
-* [Demo 6 Deploying ApplicationSets](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/appsets)
-
-* [Demo 7 Deploying Multi Clustering with ApplicationSets](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/multicluster)
-
-NOTE: each demo it's in a specific branch for avoiding overlappings, so execute git checkout
-"branch" to the specific branch in order to execute the commands.
