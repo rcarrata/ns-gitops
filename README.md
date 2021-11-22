@@ -34,7 +34,7 @@ oc apply -f argo-apps/dev-env-apps.yaml
 
 * Check that the applications are deployed properly in ArgoCD:
 
-<img align="center" width="450" src="docs/pic1.png">
+<img align="center" width="750" src="docs/app1.png">
 
 * Check the pods are up && running:
 
@@ -54,7 +54,7 @@ oc -n simpson exec -ti deploy/selma-deployment -- ./container-helper check
 
 * You can check each Argo Application in ArgoCD:
 
-<img align="center" width="450" src="docs/app2.png">
+<img align="center" width="750" src="docs/app2.png">
 
 * As you can check all the communications are allowed between microservices:
 
@@ -205,7 +205,7 @@ oc delete app bouvier-netpol-deny-all -n openshift-gitops
 oc apply -f argo-apps/netpol-bouvier.yaml
 ```
 
-<img align="center" width="450" src="docs/app4.png">
+<img align="center" width="750" src="docs/app4.png">
 
 * If we check the network policy applied, we can see the that there is a ingress rule with the namespaceSelector with the label "house: bouvier":
 
@@ -232,7 +232,7 @@ spec:
 
 As the Bouvier sisters trust Marge, but NOT trust Homer we will only allow the ingress communication from Marge only:
 
-<img align="center" width="450" src="docs/app3.png">
+<img align="center" width="750" src="docs/app3.png">
 
 * In the step early we
 
