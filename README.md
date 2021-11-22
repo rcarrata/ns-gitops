@@ -2,7 +2,9 @@
 
 Repository for deploy GitOps examples
 
-## Network Policies Demo with GitOps
+## Demo Environment provisioning
+
+We will be using an example microservices
 
 * Provision Namespace and ArgoProjects for the demo:
 
@@ -10,11 +12,29 @@ Repository for deploy GitOps examples
 oc apply -k argo-projects/
 ```
 
+* Login to the ArgoCD Server:
+
+```
+echo https://$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}{"\n"}')
+```
+
+* Use admin user with the password:
+
+```
+oc get secret/openshift-gitops-cluster -n openshift-gitops -o jsonpath='\''{.data.admin\.password}'\'' | base64 -d
+```
+
+NOTE: you can also login using the Openshift SSO because it's enabled using Dex OIDC integration.
+
 * Deploy the ApplicationSet containing the Applications to be secured:
 
 ```
 oc apply -f argo-apps/dev-env-apps.yaml
 ```
+
+* Check that the applications are deployed properly in ArgoCD:
+
+<img align="center" width="450" src="docs/pic1.png">
 
 * Check the pods are up && running:
 
@@ -31,6 +51,10 @@ oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
 oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
 oc -n simpson exec -ti deploy/selma-deployment -- ./container-helper check
 ```
+
+* You can check each Argo Application in ArgoCD:
+
+<img align="center" width="450" src="docs/app2.png">
 
 * As you can check all the communications are allowed between microservices:
 
@@ -58,6 +82,7 @@ the 1, means that the traffic is OK, and the 0 are the NOK.
   3. = You can only write rules that allow traffic!
   4. Scope: Namespace
 
+## Network Policies Demo with GitOps
 
 ## Use Case 1 - Simpson Deny ALL
 
@@ -180,6 +205,8 @@ oc delete app bouvier-netpol-deny-all -n openshift-gitops
 oc apply -f argo-apps/netpol-bouvier.yaml
 ```
 
+<img align="center" width="450" src="docs/app4.png">
+
 * If we check the network policy applied, we can see the that there is a ingress rule with the namespaceSelector with the label "house: bouvier":
 
 ```
@@ -202,4 +229,32 @@ spec:
 ```
 
 ## Use Case 4 - Bouvier allow communication from Marge
+
+As the Bouvier sisters trust Marge, but NOT trust Homer we will only allow the ingress communication from Marge only:
+
+<img align="center" width="450" src="docs/app3.png">
+
+* In the step early we
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/instance: bouvier-netpols
+  name: allow-from-marge-simpson
+  namespace: bouvier
+spec:
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              house: simpson
+          podSelector:
+            matchLabels:
+              app: marge
+  podSelector: {}
+  policyTypes:
+    - Ingress
+```
 
