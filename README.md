@@ -86,9 +86,15 @@ the 1, means that the traffic is OK, and the 0 are the NOK.
 
 ## Use Case 1 - Simpson Deny ALL
 
+In the first use case, we will deny all the ingress connectivity to the Simpsons namespace, so nobody can connect to the pods of each microservice in the Simpson namespace (even no communication will be allowed among their own microservices living in the Simpson ns).
+
+* Apply the Argo Application that will apply the Network Policy for deny all the traffic:
+
 ```
 oc apply -f argo-apps/netpol-simpson-deny-all.yaml
 ```
+
+<img align="center" width="650" src="docs/app2_bis.png">
 
 ```
 apiVersion: networking.k8s.io/v1
@@ -101,6 +107,8 @@ metadata:
 spec:
   podSelector: {}
 ```
+
+* Run the connectivity scripts using the run-check.sh (small script checking the connectivity from and to all the microservices in the app):
 
 ```
 bash run-checks.sh
@@ -234,7 +242,7 @@ As the Bouvier sisters trust Marge, but NOT trust Homer we will only allow the i
 
 <img align="center" width="750" src="docs/app3.png">
 
-* In the step early we
+* In the step early we applied though GitOps the Network Policies from the Use Case 3 and 4 (this one). The Network Policy for the Use Case 4 is the following:
 
 ```
 apiVersion: networking.k8s.io/v1
@@ -258,3 +266,173 @@ spec:
     - Ingress
 ```
 
+as you can check the Network Policies applied, allows communication to the namespace simpson with a namespace selector and specifically we allow with a podSelector the pod with the label "app: marge", that it's the marge pod.
+
+* If we check the use cases from Use Case 3 and 4:
+
+```
+bash run-checks.sh
+BOUVIER CONNECTIVITY
+
+## PATTY
+marge.simpson             : 1
+homer.simpson             : 1
+selma.bouvier             : 1
+
+## SELMA
+marge.simpson             : 1
+homer.simpson             : 1
+patty.bouvier             : 1
+
+SIMPSONS CONNECTIVITY
+## HOMER
+marge.simpson             : 1
+selma.bouvier             : 0
+patty.bouvier             : 0
+
+## MARGE
+Using config file: /container-helper/container-helper.yaml
+homer.simpson             : 1
+selma.bouvier             : 1
+patty.bouvier             : 1
+```
+
+as expected to the Bouvier namespace, only Marge it's allowed to communicate, and between the Bouvier sisters (same namespace) the communication is also allowed. But Homer's communication to the Bouvier namespace as it's not trusted, it's DENIED.
+
+* Delete the netpol for apply the other use cases
+
+```
+oc patch app -n openshift-gitops bouvier-netpols  -p '{"metadata": {"finalizers": ["resources -finalizer.argocd.argoproj.io"]}}' --type merge
+
+oc delete -n openshift-gitops application bouvier-netpols
+```
+
+## Use Case 5 - Allow communication from Bouvier Namespace to Simpson Namespace + Allow Simpson same namespace communication
+
+In this case we will allow in the Simpson namespace the communication between the microservices on the same project / namespace (from/to Marge-Homer):
+
+```
+oc apply -f argo-apps/netpol-simpson.yaml
+```
+
+<img align="center" width="750" src="docs/app5.png">
+
+The network Policies are the following for the allow from Bouvier to Marge:
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/instance: simpson-netpols
+  name: allow-from-bouvier-to-marge
+  namespace: simpson
+spec:
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              house: bouvier
+  podSelector:
+    matchLabels:
+      app: marge
+  policyTypes:
+    - Ingress
+```
+
+and for allow on the same Simpson namespace:
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/instance: simpson-netpols
+  name: allow-from-simpson-to-simpson
+  namespace: simpson
+spec:
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              house: simpson
+  podSelector: {}
+  policyTypes:
+    - Ingress
+```
+
+The communication checks are the following:
+
+```
+BOUVIER CONNECTIVITY
+## PATTY
+marge.simpson             : 1
+homer.simpson             : 0
+selma.bouvier             : 1
+
+## SELMA
+marge.simpson             : 1
+homer.simpson             : 0
+patty.bouvier             : 1
+
+SIMPSONS CONNECTIVITY
+## HOMER
+marge.simpson             : 1
+selma.bouvier             : 1
+patty.bouvier             : 1
+
+## MARGE
+homer.simpson             : 1
+selma.bouvier             : 1
+patty.bouvier             : 1
+```
+
+As we can see the only communication that it's not allowed is FROM the Bouvier namespace to the Homer App as expected.
+
+## Use Case 5 - Bouvier Netpols + Simpson Netpols
+
+* Now, we will add both Network Policies, the Bouvier AND the Simpson Network Policies:
+
+```
+oc apply -f argo-apps/netpol-simpson.yaml
+
+oc apply -f argo-apps/netpol-bouvier.yaml
+```
+
+* As we can check in the ArgoCD namespace we can see that both set of Netpols are successfully applied:
+
+<img align="center" width="750" src="docs/app5.png">
+
+* If we check the results of the connectivity tests:
+
+```
+bash run-checks.sh
+BOUVIER CONNECTIVITY
+## PATTY
+marge.simpson             : 1
+homer.simpson             : 0
+selma.bouvier             : 1
+
+## SELMA
+marge.simpson             : 1
+homer.simpson             : 0
+patty.bouvier             : 1
+
+SIMPSONS CONNECTIVITY
+## HOMER
+marge.simpson             : 1
+selma.bouvier             : 0
+patty.bouvier             : 0
+
+## MARGE
+homer.simpson             : 1
+selma.bouvier             : 1
+patty.bouvier             : 1
+```
+
+as we can check Homer is only capable to communicate with Marge because of the Network Policies won't allow him to communicate to one except in the same namespace.
+Marge is able to communicate with everyone because of the Network Policies of allow, and the Bouvier Sisters are not able to communicate with Homer.
+
+## Use Case 6 - Allow Openshift-Ingress Namespaces in Simpson Namespace
+
+TODO
