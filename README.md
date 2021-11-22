@@ -1,4 +1,4 @@
-# NaaS using GitOps
+# Demo 1 - Securing your Microservices with Network Policies using GitOps
 
 Repository for deploy GitOps examples
 
