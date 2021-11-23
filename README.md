@@ -1,6 +1,4 @@
-# NaaS using GitOps
-
-Repository for deploy GitOps examples
+# Demo 2 - Securing your Egress Traffic within your workloads with Egress Firewall using GitOps
 
 ## Demo Environment provisioning
 
@@ -179,6 +177,7 @@ oc -n bouvier exec -ti deploy/patty-deployment -- curl $RH_IP -vI
 
 ### Egress Firewall - Lock down the External Communication to any external host
 
+```
 ```
 
 
