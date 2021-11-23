@@ -4,6 +4,21 @@ Repository for deploy GitOps examples
 
 ## 1. Demo Environment provisioning
 
+We will be using an example microservices, where we have two main namespace "Simpson" and "Bouvier" and two microservices deployed in each namespace:
+
+<img align="center" width="750" src="docs/app0.png">
+
+Marge and Homer microservices will be running in the Simpson namespace and Selma and Patty microservices will be running in the Bouvier namespace.
+
+* Provision Namespace and ArgoProjects for the demo:
+
+```
+oc apply -k argo-projects/
+```
+
+NOTE: if you deployed in the early exercise this application, you can skip to the Egress Firewall step directly.
+
+
 We will be using an example microservices
 
 * Provision Namespace and ArgoProjects for the demo:
