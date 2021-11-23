@@ -91,9 +91,15 @@ We configure an egress firewall policy by creating an EgressFirewall custom reso
 
 ### Connectivity tests without Egress Firewall rules
 
+Now that we have our microservices in the two namespaces, let's execute some connectivity tests towards the IPs and DNS names that we will be used during the demo:
+
+* Let's resolv the IP of the mirror of openshift.com:
+
 ```
 IP=$(dig +short mirror.openshift.com)
 ```
+
+* And from the Homer Pod we will ensure that you reach the IP that resolves mirror.openshift.com:
 
 ```
 oc -n  exec -ti deploy/homer-deployment -- curl $IP -vI
@@ -111,6 +117,8 @@ oc -n  exec -ti deploy/homer-deployment -- curl $IP -vI
 HTTP/1.1 200 OK
 ```
 
+* On the other hand, Homer want to check if their second favourite beer webpage it's available for order some six packs:
+
 ```
 oc -n simpson exec -ti deploy/homer-deployment -- curl https://www.budweiser.com/ -vI
 
@@ -123,6 +131,8 @@ oc -n simpson exec -ti deploy/homer-deployment -- curl https://www.budweiser.com
 HTTP/1.1 200 OK
 ```
 
+* Furthermore, from the simpson namespace, Homer is checking that from their pod if it's able to reach the fantastic docs of OpenShift:
+
 ```
 oc -n bouvier exec -ti deploy/homer-deployment -- curl https://docs.openshift.com -vI
 
@@ -131,6 +141,8 @@ oc -n bouvier exec -ti deploy/homer-deployment -- curl https://docs.openshift.co
 * TCP_NODELAY set
 * Connected to docs.openshift.com (3.212.153.0) port 443 (#0)
 ```
+
+* Furthermore, Patty is checking the connectivity towards the favourite bag store website Hermés:
 
 ```
 oc -n bouvier exec -ti deploy/patty-deployment -- curl https://www.hermes.com -vI
@@ -144,6 +156,9 @@ oc -n bouvier exec -ti deploy/patty-deployment -- curl https://www.hermes.com -v
 * successfully set certificate verify locations:
 *   CAfile: /etc/pki/tls/certs/ca-bundle.crt
 ```
+
+
+* And finally, from the bouvier namespace, Patty is checking that from their namespace is able to reach the IP that resolves the labs.opentlc.com website:
 
 ```
 RH_IP=$(dig +short labs.opentlc.com | grep -v opentlc)
@@ -162,6 +177,39 @@ oc -n bouvier exec -ti deploy/patty-deployment -- curl $RH_IP -vI
 > Accept: */*
 ```
 
-### Egress Firewall - Homer is denied to access to Budweiser website only allowed to access specific IP
+### Egress Firewall - Lock down the External Communication to any external host
 
-TBD
+```
+
+
+### Egress Firewall - Homer is only allowed to access specific IP
+
+We can configure an egress firewall policy by creating an EgressFirewall custom resource (CR) object. The egress firewall matches network traffic that meets any of the following criteria:
+
+* An IP address range in CIDR format
+* A DNS name that resolves to an IP address
+* A port number
+* A protocol that is one of the following protocols: TCP, UDP, and SCTP
+
+
+* Allow only the IP of mirror.openshift.com in the namespace of bouvier:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
