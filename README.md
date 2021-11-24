@@ -140,41 +140,6 @@ oc -n simpson exec -ti deploy/homer-deployment -- curl https://docs.openshift.co
 * Connected to docs.openshift.com (3.212.153.0) port 443 (#0)
 ```
 
-* Furthermore, Patty is checking the connectivity towards the favourite bag store website Hermés:
-
-```
-oc -n bouvier exec -ti deploy/patty-deployment -- curl https://www.hermes.com -vI
-
-* Rebuilt URL to: https://www.hermes.com/
-*   Trying 192.229.211.218...
-* TCP_NODELAY set
-* Connected to www.hermes.com (192.229.211.218) port 443 (#0)
-* ALPN, offering h2
-* ALPN, offering http/1.1
-* successfully set certificate verify locations:
-*   CAfile: /etc/pki/tls/certs/ca-bundle.crt
-```
-
-
-* And finally, from the bouvier namespace, Patty is checking that from their namespace is able to reach the IP that resolves the labs.opentlc.com website:
-
-```
-RH_IP=$(dig +short labs.opentlc.com | grep -v opentlc)
-```
-
-```
-oc -n bouvier exec -ti deploy/patty-deployment -- curl $RH_IP -vI
-
-* Rebuilt URL to: 169.45.246.141/
-*   Trying 169.45.246.141...
-* TCP_NODELAY set
-* Connected to 169.45.246.141 (169.45.246.141) port 80 (#0)
-> HEAD / HTTP/1.1
-> Host: 169.45.246.141
-> User-Agent: curl/7.61.1
-> Accept: */*
-```
-
 ### Egress Firewall - Lock down the External Communication to any external host in Simpson namespace
 
 We can configure an egress firewall policy by creating an EgressFirewall custom resource (CR) object. The egress firewall matches network traffic that meets any of the following criteria:
@@ -335,6 +300,31 @@ oc apply -f argo-apps/egressfw-simpson-allow-ip-and-dns.yaml
 <img align="center" width="750" src="docs/app4.png">
 
 ```
+apiVersion: k8s.ovn.org/v1
+kind: EgressFirewall
+metadata:
+  labels:
+    app.kubernetes.io/instance: simpson-egressfw-allow-ip-and-dns
+  name: default
+  namespace: simpson
+spec:
+  egress:
+    - to:
+        cidrSelector: 54.172.123.0/16
+      type: Allow
+    - to:
+        dnsName: docs.openshift.com
+      type: Allow
+    - to:
+        cidrSelector: 0.0.0.0/0
+      type: Deny
+```
+
+```
+IP=$(dig +short mirror.openshift.com)
+```
+
+```
 oc -n simpson  exec -ti deploy/homer-deployment -- curl $IP -vI -m2
 * Rebuilt URL to: 54.172.173.155/
 *   Trying 54.172.173.155...
@@ -351,12 +341,114 @@ HTTP/1.1 200 OK
 ```
 
 ```
-
+oc -n simpson exec -ti deploy/homer-deployment -- curl https://www.budweiser.com/ -vI -m2
+*   Trying 45.60.12.68...
+* TCP_NODELAY set
+* Connection timed out after 2001 milliseconds
+* Closing connection 0
+curl: (28) Connection timed out after 2001 milliseconds
+command terminated with exit code 28
 ```
 
+TODO: Insert Homer Do'h image.
 
+```
+oc -n simpson exec -ti deploy/homer-deployment -- curl https://docs.openshift.com -vI -m2
+* Rebuilt URL to: https://docs.openshift.com/
+* Resolving timed out after 2000 milliseconds
+* Could not resolve host: docs.openshift.com
+* Closing connection 0
+curl: (28) Resolving timed out after 2000 milliseconds
+command terminated with exit code 28
+```
 
+What happened? The curl failed! But we allowed the dnsName in the EgressFirewall, why we can’t reach the docs.openshift.com webpage from our pod?
 
+* Let’s check the resolv.conf inside of our pods:
 
+```
+oc -n simpson exec -ti deploy/homer-deployment -- cat /etc/resolv.conf
 
+search simpson.svc.cluster.local svc.cluster.local cluster.local ocp.rober.lab
+nameserver 172.30.0.10
+options ndots:5
+```
 
+Seems ok, isn’t? Why then the curl is not working properly?
+
+Well, we in fact allowed the dnsName, but who actually resolves the dns resolution is the Openshift DNS based in the CoreDNS.
+
+When a DNS request is performed inside of Kubernetes/OpenShift, CoreDNS handles this request and tries to resolved in the domains that the search describes, but because have not the proper answer, CoreDNS running within the Openshift-DNS pods, forward the query to the external DNS configured during the installation.
+
+Check the [Deep Dive in DNS in OpenShift](https://rcarrata.com/openshift/dns-deep-dive-in-openshift/) for more information.
+
+In our case the rules are allowing only the dnsName, but denying the rest of the IPs, including… the Openshift-DNS / CoreDNS ones!
+
+Let’s allow the IPs from the Openshift-DNS, but first we need to check which are these IPs.
+
+```
+oc get pod -n openshift-dns -o wide | grep dns
+dns-default-6wx2g     2/2     Running   2          15d   10.128.0.4       ocp-8vr6j-master-2         <none>           <none>
+dns-default-8hm8x     2/2     Running   2          15d   10.130.0.3       ocp-8vr6j-master-1         <none>           <none>
+dns-default-bgxqh     2/2     Running   4          15d   10.128.2.4       ocp-8vr6j-worker-0-82t6f   <none>           <none>
+dns-default-ft6w2     2/2     Running   2          15d   10.131.0.3       ocp-8vr6j-worker-0-kvxr9   <none>           <none>
+dns-default-nfsm6     2/2     Running   2          15d   10.129.2.7       ocp-8vr6j-worker-0-sl79n   <none>           <none>
+dns-default-nnlsf     2/2     Running   2          15d   10.129.0.3       ocp-8vr6j-master-0         <none>           <none>
+dns-default-wrszg     2/2     Running   0          12d   10.130.2.5       ocp-8vr6j-worker-0-8b45f   <none>           <none>
+```
+
+So we need to add a specific range from the 10.128.0.0 to the 10.130.0.0, but we will add a range a bit larger only for PoC purposes. Let’s add a rule to allow the 10.0.0.0/16 cidr into the Egress Firewall.
+
+Delete previous rule for apply the proper one:
+
+```
+oc delete -f argo-apps/egressfw-simpson-allow-ip-and-dns.yaml
+```
+
+Apply the proper rule with the new Argo Application pointing to the fixed Egress Firewall
+
+```
+oc apply -f argo-apps/egressfw-simpson-allow-ip-and-dns-plus-ocp-dns.yaml
+```
+
+<img align="center" width="750" src="docs/app5.png">
+
+```
+apiVersion: k8s.ovn.org/v1
+kind: EgressFirewall
+metadata:
+  labels:
+    app.kubernetes.io/instance: simpson-egressfw-allow-ip-and-dns-plus-ocp-dns
+  name: default
+  namespace: simpson
+spec:
+  egress:
+    - to:
+        cidrSelector: 54.172.123.0/16
+      type: Allow
+    - to:
+        dnsName: docs.openshift.com
+      type: Allow
+    - to:
+        cidrSelector: 10.0.0.0/16
+      type: Allow
+    - to:
+        cidrSelector: 0.0.0.0/0
+      type: Deny
+```
+
+And try again the same curl to the docs.openshift.com:
+
+```
+oc -n simpson exec -ti deploy/homer-deployment -- curl https://docs.openshift.com -vI
+* Rebuilt URL to: https://docs.openshift.com/
+*   Trying 3.212.153.0...
+* TCP_NODELAY set
+* Connected to docs.openshift.com (3.212.153.0) port 443 (#0)
+```
+
+It works!
+
+Using the DNS feature assumes that the nodes and masters are located in a similar location as the DNS entries that are added to the ovn database are generated by the master.
+
+NOTE: use Caution when using DNS names in deny rules. The DNS interceptor will never work flawlessly and could allow access to a denied host if the DNS resolution on the node is different then in the master.
