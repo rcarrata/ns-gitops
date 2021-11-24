@@ -250,15 +250,10 @@ oc delete -f argo-apps/egressfw-simpson-deny-all.yaml
 * Allow only the IP of mirror.openshift.com in the namespace of bouvier:
 
 ```
-IP=$(dig +short mirror.openshift.com)
-
-echo $IP
-54.172.163.83
-```
-
-```
 oc apply -f argo-apps/egressfw-simpson-allow-only-ip.yaml
 ```
+
+<img align="center" width="750" src="docs/app3.png">
 
 ```
 apiVersion: k8s.ovn.org/v1
@@ -278,17 +273,86 @@ spec:
       type: Allow
 ```
 
+```
+IP=$(dig +short mirror.openshift.com)
 
+echo $IP
+53.172.163.83
+```
 
+```
+oc -n simpson  exec -ti deploy/homer-deployment -- curl $IP -vI -m2
+* Rebuilt URL to: 54.172.173.155/
+*   Trying 54.172.173.155...
+* TCP_NODELAY set
+* Connected to 54.172.173.155 (54.172.173.155) port 80 (#0)
+> HEAD / HTTP/1.1
+> Host: 54.172.173.155
+> User-Agent: curl/7.61.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+HTTP/1.1 200 OK
+```
 
+* google.com IP resolve to 142.250.217.78
 
+```
+oc -n simpson exec -ti deploy/homer-deployment -- curl 142.250.217.78 -vI -m2
+* Rebuilt URL to: 142.250.217.78/
+*   Trying 142.250.217.78...
+* TCP_NODELAY set
+* Connection timed out after 2001 milliseconds
+* Closing connection 0
+curl: (28) Connection timed out after 2001 milliseconds
+command terminated with exit code 28
+```
 
+```
+oc -n simpson exec -ti deploy/homer-deployment -- curl https://www.budweiser.com/ -vI -m2
+*   Trying 45.60.12.68...
+* TCP_NODELAY set
+* Connection timed out after 2001 milliseconds
+* Closing connection 0
+curl: (28) Connection timed out after 2001 milliseconds
+command terminated with exit code 28
+```
 
+```
+oc delete -f argo-apps/egressfw-simpson-allow-only-ip.yaml
+```
 
+### Egress Firewall - Homer is allowed to access specific IP and DNS
 
+Marge want to allow Homer to only access to their work, and because of that she will allow also the docs.openshift.com, but deny the rest! No beer during the daily job is allowed Homer!
 
+As we described now we will add also a DNS Name (docs.openshift.com) into the set of rules that will allow defined in the Egress Firewall:
 
+```
+oc apply -f argo-apps/egressfw-simpson-allow-ip-and-dns.yaml
+```
 
+<img align="center" width="750" src="docs/app4.png">
+
+```
+oc -n simpson  exec -ti deploy/homer-deployment -- curl $IP -vI -m2
+* Rebuilt URL to: 54.172.173.155/
+*   Trying 54.172.173.155...
+* TCP_NODELAY set
+* Connected to 54.172.173.155 (54.172.173.155) port 80 (#0)
+> HEAD / HTTP/1.1
+> Host: 54.172.173.155
+> User-Agent: curl/7.61.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+HTTP/1.1 200 OK
+< Date: Wed, 24 Nov 2021 15:12:06 GMT
+```
+
+```
+
+```
 
 
 
