@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simpson-egressfw-allow-ip-and-dns
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: simpson
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: egressfw/overlays/egressfw-simpson-allow-ip-and-dns
+    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
+    targetRevision: egressfw
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+    - CreateNamespace=true
