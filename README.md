@@ -100,7 +100,7 @@ IP=$(dig +short mirror.openshift.com)
 * And from the Homer Pod we will ensure that you reach the IP that resolves mirror.openshift.com:
 
 ```
-oc -n  exec -ti deploy/homer-deployment -- curl $IP -vI
+oc -n simpson exec -ti deploy/homer-deployment -- curl $IP -vI
 
 * Rebuilt URL to: 54.172.163.83/
 *   Trying 54.172.163.83...
@@ -132,7 +132,7 @@ HTTP/1.1 200 OK
 * Furthermore, from the simpson namespace, Homer is checking that from their pod if it's able to reach the fantastic docs of OpenShift:
 
 ```
-oc -n bouvier exec -ti deploy/homer-deployment -- curl https://docs.openshift.com -vI
+oc -n simpson exec -ti deploy/homer-deployment -- curl https://docs.openshift.com -vI
 
 * Rebuilt URL to: https://docs.openshift.com/
 *   Trying 3.212.153.0...
@@ -175,13 +175,7 @@ oc -n bouvier exec -ti deploy/patty-deployment -- curl $RH_IP -vI
 > Accept: */*
 ```
 
-### Egress Firewall - Lock down the External Communication to any external host
-
-```
-```
-
-
-### Egress Firewall - Homer is only allowed to access specific IP
+### Egress Firewall - Lock down the External Communication to any external host in Simpson namespace
 
 We can configure an egress firewall policy by creating an EgressFirewall custom resource (CR) object. The egress firewall matches network traffic that meets any of the following criteria:
 
@@ -190,9 +184,99 @@ We can configure an egress firewall policy by creating an EgressFirewall custom 
 * A port number
 * A protocol that is one of the following protocols: TCP, UDP, and SCTP
 
+```
+oc apply -f argo-apps/egressfw-simpson-deny-all.yaml
+```
+
+```
+apiVersion: k8s.ovn.org/v1
+kind: EgressFirewall
+metadata:
+  labels:
+    app.kubernetes.io/instance: simpson-egressfw-deny-all
+  name: default
+  namespace: simpson
+spec:
+  egress:
+    - to:
+        cidrSelector: 0.0.0.0/0
+      type: Deny
+```
+
+```
+oc -n simpson  exec -ti deploy/homer-deployment -- curl $IP -vI -m5
+* Rebuilt URL to: 54.173.18.88/
+*   Trying 54.173.18.88...
+* TCP_NODELAY set
+* Connection timed out after 5000 milliseconds
+* Closing connection 0
+curl: (28) Connection timed out after 5000 milliseconds
+command terminated with exit code 28
+```
+
+```
+oc -n simpson exec -ti deploy/homer-deployment -- curl https://www.budweiser.com/ -vI -m5
+*   Trying 45.60.12.68...
+* TCP_NODELAY set
+* Connection timed out after 5000 milliseconds
+* Closing connection 0
+curl: (28) Connection timed out after 5000 milliseconds
+command terminated with exit code 28
+```
+
+```
+oc -n simpson exec -ti deploy/homer-deployment -- curl https://docs.openshift.com -vI -m5
+* Rebuilt URL to: https://docs.openshift.com/
+*   Trying 3.212.153.0...
+* TCP_NODELAY set
+* After 2489ms connect time, move on!
+* connect to 3.212.153.0 port 443 failed: Connection timed out
+*   Trying 3.231.172.125...
+* TCP_NODELAY set
+* After 1243ms connect time, move on!
+* connect to 3.231.172.125 port 443 failed: Connection timed out
+* Failed to connect to docs.openshift.com port 443: Connection timed out
+* Closing connection 0
+curl: (7) Failed to connect to docs.openshift.com port 443: Connection timed out
+command terminated with exit code 7
+```
+
+```
+oc delete -f argo-apps/egressfw-simpson-deny-all.yaml
+```
+
+### Egress Firewall - Homer is only allowed to access specific IP
 
 * Allow only the IP of mirror.openshift.com in the namespace of bouvier:
 
+```
+IP=$(dig +short mirror.openshift.com)
+
+echo $IP
+54.172.163.83
+```
+
+```
+oc apply -f argo-apps/egressfw-simpson-allow-only-ip.yaml
+```
+
+```
+apiVersion: k8s.ovn.org/v1
+kind: EgressFirewall
+metadata:
+  labels:
+    app.kubernetes.io/instance: simpson-egressfw-allow-ip
+  name: default
+  namespace: simpson
+spec:
+  egress:
+    - to:
+        cidrSelector: 0.0.0.0/0
+      type: Deny
+    - to:
+        cidrSelector: 54.172.173.155/32
+      type: Allow
+```
 
 
 
