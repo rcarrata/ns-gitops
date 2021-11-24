@@ -1,15 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: dev-env-netpol
+  name: dev-env-egressfw
   namespace: openshift-gitops
 spec:
   generators:
   - git:
       repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-      revision: netpol
+      revision: egressfw
       directories:
-      - path: netpol/overlays/*
+      - path: egressfw/overlays/*
   template:
     metadata:
       name: '{{path.basename}}'
@@ -21,7 +21,7 @@ spec:
           selfHeal: true
       source:
         repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-        targetRevision: netpol
+        targetRevision: egressfw
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc

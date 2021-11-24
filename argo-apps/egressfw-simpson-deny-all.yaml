@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bouvier-netpol-deny-all
+  name: simpson-egressfw-deny-all
   namespace: openshift-gitops
 spec:
   destination:
-    namespace: bouvier
+    namespace: simpson
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: netpol/base
+    path: egressfw/base
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-    targetRevision: netpol
+    targetRevision: egressfw
   syncPolicy:
     automated:
       prune: true
