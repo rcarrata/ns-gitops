@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: simpson-egressfw-allow-ip-and-dns-plus-ocp-dns
+  name: simpson-egressip
   namespace: openshift-gitops
 spec:
   destination:
@@ -9,9 +9,9 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: egressfw/overlays/egressfw-simpson-allow-ip-and-dns-plus-ocp-dns
+    path: egressip/overlays/egressip-simpson
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-    targetRevision: egressfw
+    targetRevision: egressip
   syncPolicy:
     automated:
       prune: true

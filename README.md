@@ -194,6 +194,7 @@ tail -n5 /var/log/httpd/access_log
 192.168.126.51 - - [25/Nov/2021:08:33:15 -0500] "HEAD / HTTP/1.1" 200 - "-" "curl/7.61.1"
 ```
 
+## Egress IP with OpenShift OVN Kubernetes
 
 ```
 WORKER_EGRESS=$(kubectl get pod -l app=homer -n simpson -o jsonpath='{.items[0].spec.nodeName}')
@@ -218,8 +219,82 @@ kubectl get namespace simpson -o jsonpath='{.metadata.labels}' | jq -r .
 ```
 EGRESS_IP1="192.168.126.100"
 EGRESS_IP2="192.168.126.101"
+```
 
+```
+kubectl apply -f argo-apps/egressip-simpson.yaml
+```
 
+<img align="center" width="750" src="docs/app5.png">
 
+```
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  labels:
+    app.kubernetes.io/instance: simpson-egressip
+  name: egressip-demo
+spec:
+  egressIPs:
+    - 192.168.126.100
+    - 192.168.126.101
+  namespaceSelector:
+    matchLabels:
+      house: simpson
+```
+
+```
+oc get egressip
+NAME            EGRESSIPS         ASSIGNED NODE              ASSIGNED EGRESSIPS
+egressip-demo   192.168.126.100   ocp-8vr6j-worker-0-sl79n   192.168.126.100
+```
+
+```
+oc get egressip egressip-demo -o yaml
+apiVersion: k8s.ovn.org/v1
+kind: EgressIP
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"k8s.ovn.org/v1","kind":"EgressIP","metadata":{"annotations":{},"labels":{"app.kubernetes.io/instance":"simpson-egressip"},"name":"egressip-demo"},"spec":{"egressIPs":["192.168.126.100","192.168.126.101"],"namespaceSelector":{"matchLabels":{"house":"simpson"}}}}
+  creationTimestamp: "2021-11-26T11:28:06Z"
+  generation: 2
+  labels:
+    app.kubernetes.io/instance: simpson-egressip
+  name: egressip-demo
+  resourceVersion: "10138560"
+  uid: e6ea5166-fdf7-4b11-acbb-b393f4baab1b
+spec:
+  egressIPs:
+  - 192.168.126.100
+  - 192.168.126.101
+  namespaceSelector:
+    matchLabels:
+      house: simpson
+  podSelector: {}
+status:
+  items:
+  - egressIP: 192.168.126.100
+    node: ocp-8vr6j-worker-0-sl79n
+```
+
+```
+oc -n openshift-ovn-kubernetes exec -ti ovnkube-master-7m58n  -c northd -- ovn-nbctl show | grep -B1 -A3 "192.168.126.100"
+    nat 385dd68c-62a2-4394-a3ef-6b86afc3ed43
+        external ip: "192.168.126.100"
+        logical ip: "10.129.3.232"
+        type: "snat"
+    nat a211749e-e47a-4db2-bcf5-d4c8c73d87ce
+        external ip: "192.168.126.100"
+        logical ip: "10.129.3.233"
+        type: "snat"
+```
+
+```
+oc get pod -n simpson -o wide
+NAME                                READY   STATUS    RESTARTS   AGE     IP             NODE                       NOMINATED NODE   READINESS GATES
+homer-deployment-5b7857cc48-fs2w4   1/1     Running   0          6d23h   10.129.3.232   ocp-8vr6j-worker-0-sl79n   <none>           <none>
+marge-deployment-75474c9ff-jpkkv    1/1     Running   0          6d23h   10.129.3.233   ocp-8vr6j-worker-0-sl79n   <none>           <none>
+```
 
 
