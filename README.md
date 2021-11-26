@@ -244,13 +244,13 @@ spec:
 ```
 
 ```
-oc get egressip
+kubectl get egressip
 NAME            EGRESSIPS         ASSIGNED NODE              ASSIGNED EGRESSIPS
 egressip-demo   192.168.126.100   ocp-8vr6j-worker-0-sl79n   192.168.126.100
 ```
 
 ```
-oc get egressip egressip-demo -o yaml
+kubectl get egressip egressip-demo -o yaml
 apiVersion: k8s.ovn.org/v1
 kind: EgressIP
 metadata:
@@ -279,7 +279,7 @@ status:
 ```
 
 ```
-oc -n openshift-ovn-kubernetes exec -ti ovnkube-master-7m58n  -c northd -- ovn-nbctl show | grep -B1 -A3 "192.168.126.100"
+kubectl -n openshift-ovn-kubernetes exec -ti ovnkube-master-7m58n  -c northd -- ovn-nbctl show | grep -B1 -A3 "192.168.126.100"
     nat 385dd68c-62a2-4394-a3ef-6b86afc3ed43
         external ip: "192.168.126.100"
         logical ip: "10.129.3.232"
@@ -291,10 +291,82 @@ oc -n openshift-ovn-kubernetes exec -ti ovnkube-master-7m58n  -c northd -- ovn-n
 ```
 
 ```
-oc get pod -n simpson -o wide
+kubectl get pod -n simpson -o wide
 NAME                                READY   STATUS    RESTARTS   AGE     IP             NODE                       NOMINATED NODE   READINESS GATES
 homer-deployment-5b7857cc48-fs2w4   1/1     Running   0          6d23h   10.129.3.232   ocp-8vr6j-worker-0-sl79n   <none>           <none>
 marge-deployment-75474c9ff-jpkkv    1/1     Running   0          6d23h   10.129.3.233   ocp-8vr6j-worker-0-sl79n   <none>           <none>
 ```
 
+[addNamespaceEgressIP](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L361)
 
+createEgressReroutePolicy uses logical router policies to force egress traffic to the egress node, for that we need to retrieve the internal gateway router IP attached to the egress node. This method handles both the shared and local gateway mode case
+
+[Add to Pod EgressIP and ReroutePolicy](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L821)
+
+[createEgressReroutePolicy](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L948)
+
+[addPodEgressIP](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L827)
+
+[createNATRuleOps](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L1296)
+
+```
+for i in {1..4}; do kubectl exec -ti -n simpson deploy/homer-deployment -- curl  -s -o /dev/null -I -w "%{http_code}" http://192.168.126.1:8080; echo "-> num $i" ; done
+200-> num 1
+200-> num 2
+200-> num 3
+200-> num 4
+```
+
+```
+tail -n4 /var/log/httpd/access_log
+192.168.126.100 - - [26/Nov/2021:12:53:13 -0500] "HEAD / HTTP/1.1" 200 - "-" "curl/7.61.1"
+192.168.126.100 - - [26/Nov/2021:12:53:15 -0500] "HEAD / HTTP/1.1" 200 - "-" "curl/7.61.1"
+192.168.126.100 - - [26/Nov/2021:12:53:16 -0500] "HEAD / HTTP/1.1" 200 - "-" "curl/7.61.1"
+192.168.126.100 - - [26/Nov/2021:12:53:18 -0500] "HEAD / HTTP/1.1" 200 - "-" "curl/7.61.1"
+```
+
+## Failover
+
+```
+kubectl label nodes ocp-8vr6j-worker-0-82t6f k8s.ovn.org/egress-assignable=""
+```
+
+```
+oc debug node/$WORKER_EGRESS
+Starting pod/ocp-8vr6j-worker-0-sl79n-debug ...
+To use host binaries, run `chroot /host`
+Pod IP: 192.168.126.51
+If you don't see a command prompt, try pressing enter.
+sh-4.4# chroot /host bash
+[root@ocp-8vr6j-worker-0-sl79n /]#
+[root@ocp-8vr6j-worker-0-sl79n /]# shutdown now
+```
+
+```
+kubectl get nodes -l k8s.ovn.org/egress-assignable=
+NAME                       STATUS     ROLES    AGE   VERSION
+ocp-8vr6j-worker-0-82t6f   Ready      worker   18d   v1.22.0-rc.0+a44d0f0
+ocp-8vr6j-worker-0-sl79n   NotReady   worker   18d   v1.22.0-rc.0+a44d0f0
+```
+
+```
+kubectl get egressip
+NAME            EGRESSIPS         ASSIGNED NODE              ASSIGNED EGRESSIPS
+egressip-demo   192.168.126.100   ocp-8vr6j-worker-0-82t6f   192.168.126.100
+```
+
+```
+for i in {1..4}; do kubectl exec -ti -n simpson deploy/homer-deployment -- curl  -s -o /dev/null -I -w "%{http_code}" http://192.168.126.1:8080; echo "-> num $i" ; done
+200-> num 1
+200-> num 2
+200-> num 3
+200-> num 4
+```
+
+```
+tail -n4 /var/log/httpd/access_log
+192.168.126.100 - - [26/Nov/2021:13:05:14 -0500] "HEAD / HTTP/1.1" 200 - "-" "curl/7.61.1"
+192.168.126.100 - - [26/Nov/2021:13:05:15 -0500] "HEAD / HTTP/1.1" 200 - "-" "curl/7.61.1"
+192.168.126.100 - - [26/Nov/2021:13:05:17 -0500] "HEAD / HTTP/1.1" 200 - "-" "curl/7.61.1"
+192.168.126.100 - - [26/Nov/2021:13:05:19 -0500] "HEAD / HTTP/1.1" 200 - "-" "curl/7.61.1"
+```
