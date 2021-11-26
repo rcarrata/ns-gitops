@@ -241,7 +241,7 @@ To assign one or more egress IPs to a namespace or specific pods in a namespace,
 * At least one node in your cluster must have the k8s.ovn.org/egress-assignable: "" label.
 * An EgressIP object exists that defines one or more egress IP addresses to use as the source IP address for traffic leaving the cluster from pods in a namespace.
 
-NOTE: Check the [platform supportability](https://docs.openshift.com/container-platform/4.9/networking/ovn_kubernetes_network_provider/configuring-egress-ips-ovn.html#nw-egress-ips-platform-support_configuring-egress-ips-ovn) to be aware in which platforms are supported the EgressIP. 
+NOTE: Check the [platform supportability](https://docs.openshift.com/container-platform/4.9/networking/ovn_kubernetes_network_provider/configuring-egress-ips-ovn.html#nw-egress-ips-platform-support_configuring-egress-ips-ovn) to be aware in which platforms are supported the EgressIP.
 
 ### Assigning EgressIP to specific worker
 
@@ -275,7 +275,7 @@ kubectl get namespace simpson -o jsonpath='{.metadata.labels}' | jq -r .
 }
 ```
 
-* We will use an specific EgressIP, that is in the same range of the machineNetwork / HOST_IP:
+* We will use two specific EgressIP, that are in the same range of the machineNetwork / HOST_IP:
 
 ```sh
 EGRESS_IP1="192.168.126.100"
@@ -322,25 +322,24 @@ NAME            EGRESSIPS         ASSIGNED NODE              ASSIGNED EGRESSIPS
 egressip-demo   192.168.126.100   ocp-8vr6j-worker-0-sl79n   192.168.126.100
 ```
 
-the egressIP is assigned properly to the labeled worker node in the previous step.
+the egressIP1 is assigned properly to the labeled worker node in the previous step.
 
 If we check specifically the egressip-demo object we can confirm that the status it's the egressIP is assigned to the node:
 
 ```sh
-kubectl get egressip egressip-demo -o yaml
 apiVersion: k8s.ovn.org/v1
 kind: EgressIP
 metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"k8s.ovn.org/v1","kind":"EgressIP","metadata":{"annotations":{},"labels":{"app.kubernetes.io/instance":"simpson-egressip"},"name":"egressip-demo"},"spec":{"egressIPs":["192.168.126.100","192.168.126.101"],"namespaceSelector":{"matchLabels":{"house":"simpson"}}}}
-  creationTimestamp: "2021-11-26T11:28:06Z"
-  generation: 2
+      {"apiVersion":"k8s.ovn.org/v1","kind":"EgressIP","metadata":{"annotations":{},"labels":{"app.kubernetes.io/instance":"simpson-egressip"},"name":"egressip-demo"},"spec":{"egressIPs":["192.168.126.100"],"namespaceSelector":{"matchLabels":{"house":"simpson"}}}}
+  creationTimestamp: "2021-11-26T20:40:43Z"
+  generation: 3
   labels:
     app.kubernetes.io/instance: simpson-egressip
   name: egressip-demo
-  resourceVersion: "10138560"
-  uid: e6ea5166-fdf7-4b11-acbb-b393f4baab1b
+  resourceVersion: "10348402"
+  uid: ae1ccb00-70b6-4322-a538-f646cccd4ec4
 spec:
   egressIPs:
   - 192.168.126.100
@@ -351,7 +350,7 @@ spec:
 status:
   items:
   - egressIP: 192.168.126.100
-    node: ocp-8vr6j-worker-0-sl79n
+    node: ocp-8vr6j-worker-0-82t6f
 ```
 
 Let's dig a big deeper, to check how the OVN Kubernetes handles the EgressIP and how we can check them.
