@@ -1,12 +1,6 @@
-# Demo 6 - Implementing Network Security Zones in OpenShift
+# Demo 5 - Securing Ingress Traffic with Ingress Controllers and NodeSelectors using GitOps
 
 <img align="center" width="350" src="docs/app3.png">
-
-Application pods run on one OpenShift Cluster. Micro-segmented with Network Security policies.
-
-Infra Nodes in each zone run Ingress and Egress pods for specific zones
-
-If required, physical isolation of pods to specific nodes is possible with node-selectors. But that defeats the purpose of a shared cluster. Micro-segmentation with SDN is the way to go.
 
 ## Demo Environment provisioning
 
@@ -79,7 +73,7 @@ patty.bouvier             : 1
 
 the 1, means that the traffic is OK, and the 0 are the NOK.
 
-## Implementing Network Security Zones in OpenShift
+## Securing Ingress Traffic with Ingress Controllers and NodeSelectors
 
 
 
