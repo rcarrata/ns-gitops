@@ -1,4 +1,4 @@
-# Demo 5 - Securing Ingress Traffic with Ingress Controllers and NodeSelectors using GitOps
+# Demo 4 - OpenShift Network Visualization and Securization with Advanced Cluster Security for Kubernetes
 
 <img align="center" width="750" src="docs/app3.png">
 
@@ -73,7 +73,6 @@ patty.bouvier             : 1
 
 the 1, means that the traffic is OK, and the 0 are the NOK.
 
-## Securing Ingress Traffic with Ingress Controllers and NodeSelectors
 
 
 
