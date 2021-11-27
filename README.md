@@ -1,5 +1,21 @@
 # Demo 2 - Securing your Egress Traffic within your workloads with Egress Firewall using GitOps
 
+## Egress Firewall Overview - OVN Kubernetes Plugin
+
+We can use an egress firewall to limit the external hosts that some or all pods can access from within the cluster. An egress firewall supports the following scenarios:
+
+* A pod can only connect to internal hosts and cannot initiate connections to the public internet.
+* A pod can only connect to the public internet and cannot initiate connections to internal hosts that are outside the OpenShift Container Platform cluster.
+* A pod cannot reach specified internal subnets or hosts outside the OpenShift Container Platform cluster.
+* A pod can connect to only specific external hosts.
+
+We configure an egress firewall policy by creating an EgressFirewall custom resource (CR) object. The egress firewall matches network traffic that meets any of the following criteria:
+
+* An IP address range in CIDR format
+* A DNS name that resolves to an IP address
+* A port number
+* A protocol that is one of the following protocols: TCP, UDP, and SCTP
+
 ## Demo Environment provisioning
 
 We will be using an example microservices, where we have two main namespace "Simpson" and "Bouvier"
@@ -70,22 +86,6 @@ patty.bouvier             : 1
 ```
 
 the 1, means that the traffic is OK, and the 0 are the NOK.
-
-## Egress Firewall Overview - OVN Kubernetes Plugin
-
-We can use an egress firewall to limit the external hosts that some or all pods can access from within the cluster. An egress firewall supports the following scenarios:
-
-* A pod can only connect to internal hosts and cannot initiate connections to the public internet.
-* A pod can only connect to the public internet and cannot initiate connections to internal hosts that are outside the OpenShift Container Platform cluster.
-* A pod cannot reach specified internal subnets or hosts outside the OpenShift Container Platform cluster.
-* A pod can connect to only specific external hosts.
-
-We configure an egress firewall policy by creating an EgressFirewall custom resource (CR) object. The egress firewall matches network traffic that meets any of the following criteria:
-
-* An IP address range in CIDR format
-* A DNS name that resolves to an IP address
-* A port number
-* A protocol that is one of the following protocols: TCP, UDP, and SCTP
 
 ### Connectivity tests without Egress Firewall rules
 
