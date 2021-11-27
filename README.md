@@ -1,6 +1,6 @@
 # Demo 5 - Securing Ingress Traffic with Ingress Controllers and NodeSelectors using GitOps
 
-<img align="center" width="650" src="docs/app3.png">
+<img align="center" width="750" src="docs/app3.png">
 
 ## Demo Environment provisioning
 
