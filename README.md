@@ -2,6 +2,26 @@
 
 Repository for deploy GitOps examples
 
+## 0. Network Policies Overview
+
+If you want to control traffic flow at the IP address or port level (OSI layer 3 or 4), then you might consider using Kubernetes NetworkPolicies for particular applications in your cluster.
+
+**NetworkPolicies** are an application-centric construct which allow you to specify how a pod is allowed to communicate with various network "entities" (we use the word "entity" here to avoid overloading the more common terms such as "endpoints" and "services", which have specific Kubernetes connotations) over the network.
+
+* Based on labeling or annotations
+
+* Empty label selector match all
+
+* Rules for allowing
+ * Ingress -> who can connect to this POD
+ * Egress -> where can this POD connect to
+
+* Rules
+  1. traffic is allowed unless a Network Policy selecting the POD
+  2. traffic is denied if pod is selected in policie but none of them have any rules allowing it
+  3. = You can only write rules that allow traffic!
+  4. Scope: Namespace
+
 ## 1. Demo Environment provisioning
 
 We will be using an example microservices, where we have two main namespace "Simpson" and "Bouvier" and two microservices deployed in each namespace:
@@ -81,25 +101,9 @@ patty.bouvier             : 1
 
 the 1, means that the traffic is OK, and the 0 are the NOK.
 
-## 2. Network Policies Basics
+## 2. Network Policies Demo with GitOps
 
-* Based on labeling or annotations
-
-* Empty label selector match all
-
-* Rules for allowing
- * Ingress -> who can connect to this POD
- * Egress -> where can this POD connect to
-
-* Rules
-  1. traffic is allowed unless a Network Policy selecting the POD
-  2. traffic is denied if pod is selected in policie but none of them have any rules allowing it
-  3. = You can only write rules that allow traffic!
-  4. Scope: Namespace
-
-## 3. Network Policies Demo with GitOps
-
-### 3.1. **Use Case 1** - Simpson Deny ALL
+### 2.1. **Use Case 1** - Simpson Deny ALL
 
 In the first use case, we will deny all the ingress connectivity to the Simpsons namespace, so nobody can connect to the pods of each microservice in the Simpson namespace (even no communication will be allowed among their own microservices living in the Simpson ns).
 
@@ -160,7 +164,7 @@ kubectl patch app -n openshift-gitops simpson-netpol-deny-all  -p '{"metadata": 
 kubectl delete app simpson-netpol-deny-all -n openshift-gitops
 ```
 
-### 3.2. **Use Case 2** - Bouvier Deny ALL
+### 2.2. **Use Case 2** - Bouvier Deny ALL
 
 * In this case we are adding the DENY policy to the namespace Bouvier:
 
@@ -220,7 +224,7 @@ es-finalizer.argocd.argoproj.io"]}}' --type merge
 oc delete app bouvier-netpol-deny-all -n openshift-gitops
 ```
 
-### 3.3. **Use Case 3** - Bouvier allow internal communication
+### 2.3. **Use Case 3** - Bouvier allow internal communication
 
 * We will allow the communication in all the microservices that are in the same namespace, so Selma and Patty will be able to communicate each other:
 
@@ -251,7 +255,7 @@ spec:
     - Ingress
 ```
 
-### 3.4. **Use Case 4** - Bouvier allow communication from Marge
+### 2.4. **Use Case 4** - Bouvier allow communication from Marge
 
 As the Bouvier sisters trust Marge, but NOT trust Homer we will only allow the ingress communication from Marge only:
 
@@ -322,7 +326,7 @@ oc patch app -n openshift-gitops bouvier-netpols  -p '{"metadata": {"finalizers"
 oc delete -n openshift-gitops application bouvier-netpols
 ```
 
-### 3.5. **Use Case 5** - Allow communication from Bouvier Namespace to Simpson Namespace + Allow Simpson same namespace communication
+### 2.5. **Use Case 5** - Allow communication from Bouvier Namespace to Simpson Namespace + Allow Simpson same namespace communication
 
 In this case we will allow in the Simpson namespace the communication between the microservices on the same project / namespace (from/to Marge-Homer):
 
@@ -404,7 +408,7 @@ patty.bouvier             : 1
 
 As we can see the only communication that it's not allowed is FROM the Bouvier namespace to the Homer App as expected.
 
-### 3.7. **Use Case 6** - Bouvier Netpols + Simpson Netpols
+### 2.7. **Use Case 6** - Bouvier Netpols + Simpson Netpols
 
 * Now, we will add both Network Policies, the Bouvier AND the Simpson Network Policies:
 
@@ -448,6 +452,6 @@ patty.bouvier             : 1
 as we can check Homer is only capable to communicate with Marge because of the Network Policies won't allow him to communicate to one except in the same namespace.
 Marge is able to communicate with everyone because of the Network Policies of allow, and the Bouvier Sisters are not able to communicate with Homer.
 
-### 3.8. **Use Case 7** - Allow Openshift-Ingress Namespaces in Simpson Namespace
+### 2.8. **Use Case 7** - Allow Openshift-Ingress Namespaces in Simpson Namespace
 
 TODO
