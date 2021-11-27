@@ -1,4 +1,4 @@
-# Demo 5 - Implementing Network Security Zones in OpenShift
+# Demo 6 - Implementing Network Security Zones in OpenShift
 
 ## Demo Environment provisioning
 
