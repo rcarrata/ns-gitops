@@ -1,4 +1,4 @@
-# Demo 6 - Implementing Network Security Zones in OpenShift
+# Demo 7 - Implementing Network Security Zones in OpenShift
 
 <img align="center" width="350" src="docs/app3.png">
 
