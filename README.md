@@ -31,10 +31,18 @@ Repository for deploy GitOps examples
 NOTE: each demo it's in a specific branch for avoiding overlappings, so execute git checkout
 "branch" to the specific branch in order to execute the commands.
 
-## Index of OCP Security Demos using GitOps
+## Index of OpenShift Network Security Demos using GitOps
 
 * [Demo 1 Securing your Microservices with Network Policies using GitOps](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/netpol)
 
 * [Demo 2 Securing your Egress Traffic within your workloads with Egress Firewall using GitOps](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/egressfw)
 
 * [Demo 3 Securing your Egress Traffic within your apps with Egress IPs using GitOps](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/egressip)
+
+* [Demo 4 - Network Graph Visualization and Securization with Advanced Cluster Security for Kubernetes](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/networkacs)
+
+* [Demo 5 - Securing Ingress Traffic with Ingress Controllers and NodeSelectors using GitOps](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/ingress)
+
+* [Demo 6 - Implementing Network Security Zones in OpenShift](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/seczones)
+
+* [Demo 7 - Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/submariner)
