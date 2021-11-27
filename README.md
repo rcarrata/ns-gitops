@@ -43,6 +43,8 @@ NOTE: each demo it's in a specific branch for avoiding overlappings, so execute 
 
 * [Demo 5 - Securing Ingress Traffic with Ingress Controllers and NodeSelectors using GitOps](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/ingress)
 
-* [Demo 6 - Implementing Network Security Zones in OpenShift](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/seczones)
+* [Demo 6 - Securing Ingress Traffic with mTLS with OpenShift Ingress Operator using GitOps](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/mtls)
 
-* [Demo 7 - Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/submariner)
+* [Demo 7 - Implementing Network Security Zones in OpenShift](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/seczones)
+
+* [Demo 8 - Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/submariner)
