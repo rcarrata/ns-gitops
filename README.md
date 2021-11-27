@@ -16,6 +16,8 @@ We configure an egress firewall policy by creating an EgressFirewall custom reso
 * A port number
 * A protocol that is one of the following protocols: TCP, UDP, and SCTP
 
+<img align="center" width="750" src="docs/app6.png">
+
 ## Demo Environment provisioning
 
 We will be using an example microservices, where we have two main namespace "Simpson" and "Bouvier"
