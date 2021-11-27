@@ -73,7 +73,7 @@ the 1, means that the traffic is OK, and the 0 are the NOK.
 
 ## Implementing Network Security Zones in OpenShift
 
-<img align="right" width="350" src="docs/app3.png">
+<img align="center" width="350" src="docs/app3.png">
 
 Application pods run on one OpenShift Cluster. Micro-segmented with Network Security policies.
 
