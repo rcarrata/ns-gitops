@@ -1,5 +1,27 @@
 # Demo 3 - Securing your Egress Traffic within your apps with Egress IPs using GitOps
 
+## Securing Egress with Egress IP with OVN Kubernetes
+
+When you have workloads in your OpenShift cluster, and you try to reach external hosts/resources, by default cluster egress traffic gets NAT’ed to the node IP where it’s deployed your workload / pod.
+
+This causes that the external hosts (or any external firewall/ IDS/IPS that are controlling and filtering the traffic in your networks) can’t distinguish the traffic originated in your pods/workloads because they don’t use the same sourceIp, and will depend which OpenShift node are used for run the workloads.
+
+<img align="center" width="750" src="docs/app3.png">
+
+But how I can reserve private IP source IP for all egress traffic of my workloads in my project X?
+
+[Egress IPs is an OpenShift feature](https://rcarrata.com/openshift/egress-ip-ovn/) that allows for the assignment of an IP to a namespace (the egress IP) so that all outbound traffic from that namespace appears as if it is originating from that IP address (technically it is NATed with the specified IP).
+
+So in a nutshell is used to provide an application or namespace the ability to use a static IP for egress traffic regardless of the node the workload is running on. This allows for the opening of firewalls, whitelisting of traffic and other controls to be placed around traffic egressing the cluster.
+
+The egress IP becomes the network identity of the namespace and all the applications running in it. Without egress IP, traffic from different namespaces would be indistinguishable because by default outbound traffic is NATed with the IP of the nodes, which are normally shared among projects.
+
+<img align="center" width="750" src="docs/app4.png">
+
+While this process is slightly different from cloud vendor to vendor, Egress IP addresses are implemented as additional IP addresses on the primary network interface of the node and must be in the same subnet as the node’s primary IP address.
+
+Depending the SDN that you are using, the implementation of the EgressIP are slightly different, we're using OpenShift OVN Kubernetes, that it's the default CNI one.
+
 ## Demo Environment provisioning
 
 We will be using an example microservices, where we have two main namespace "Simpson" and "Bouvier"
@@ -70,28 +92,6 @@ patty.bouvier             : 1
 ```
 
 the 1, means that the traffic is OK, and the 0 are the NOK.
-
-## Securing Egress with Egress IP with OVN Kubernetes
-
-When you have workloads in your OpenShift cluster, and you try to reach external hosts/resources, by default cluster egress traffic gets NAT’ed to the node IP where it’s deployed your workload / pod.
-
-This causes that the external hosts (or any external firewall/ IDS/IPS that are controlling and filtering the traffic in your networks) can’t distinguish the traffic originated in your pods/workloads because they don’t use the same sourceIp, and will depend which OpenShift node are used for run the workloads.
-
-<img align="center" width="750" src="docs/app3.png">
-
-But how I can reserve private IP source IP for all egress traffic of my workloads in my project X?
-
-[Egress IPs is an OpenShift feature](https://rcarrata.com/openshift/egress_ip/) that allows for the assignment of an IP to a namespace (the egress IP) so that all outbound traffic from that namespace appears as if it is originating from that IP address (technically it is NATed with the specified IP).
-
-So in a nutshell is used to provide an application or namespace the ability to use a static IP for egress traffic regardless of the node the workload is running on. This allows for the opening of firewalls, whitelisting of traffic and other controls to be placed around traffic egressing the cluster.
-
-The egress IP becomes the network identity of the namespace and all the applications running in it. Without egress IP, traffic from different namespaces would be indistinguishable because by default outbound traffic is NATed with the IP of the nodes, which are normally shared among projects.
-
-<img align="center" width="750" src="docs/app4.png">
-
-While this process is slightly different from cloud vendor to vendor, Egress IP addresses are implemented as additional IP addresses on the primary network interface of the node and must be in the same subnet as the node’s primary IP address.
-
-Depending the SDN that you are using, the implementation of the EgressIP are slightly different, we're using OpenShift OVN Kubernetes, that it's the default CNI one.
 
 ### Prerequisites
 
@@ -295,7 +295,7 @@ kubectl apply -f argo-apps/egressip-simpson.yaml
 
 <img align="center" width="750" src="docs/app5.png">
 
-we can see the 
+we can see the
 
 ```sh
 apiVersion: k8s.ovn.org/v1
@@ -382,7 +382,7 @@ marge-deployment-75474c9ff-jpkkv    1/1     Running   0          6d23h   10.129.
 
 Aha! The ips correspond with the two pods that are created within the namespace Simpson. That's makes a lot of sense, because the EgressIP it's assigned with a namespaceSelector to a matching labels that selects the Simpson namespace, and all of the pods inside this namespace will use the EgressIP.
 
-If you want to dig further, check within the OVN Github source code the [addNamespaceEgressIP](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L361) function that adds the egressIP to the specific namespace and the [createEgressReroutePolicy](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L948) that uses logical router policies to force egress traffic to the egress node. 
+If you want to dig further, check within the OVN Github source code the [addNamespaceEgressIP](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L361) function that adds the egressIP to the specific namespace and the [createEgressReroutePolicy](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L948) that uses logical router policies to force egress traffic to the egress node.
 
 In a nutshell the [addPodEgressIP](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L809) function retrieves all the pods in the namespace that matches the namespaceSelector and will [Add to Pod EgressIP and ReroutePolicy](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L821) generating a [NATRule](https://github.com/ovn-org/ovn-kubernetes/blob/master/go-controller/pkg/ovn/egressip.go#L1296) for each pod and rerouting the traffic from the PodIP to the EgressIP in the worker Node.
 
@@ -436,7 +436,7 @@ As is specified in the [official documentation](https://docs.openshift.com/conta
 
 Let's try it!
 
-First let's label another worker node with the egress-assignable, that will be our failover egressip worker node: 
+First let's label another worker node with the egress-assignable, that will be our failover egressip worker node:
 
 ```sh
 kubectl label nodes ocp-8vr6j-worker-0-82t6f k8s.ovn.org/egress-assignable=""
