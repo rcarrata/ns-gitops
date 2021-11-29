@@ -1,6 +1,6 @@
 # Demo 7 - Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes
 
-<img align="center" width="750" src="docs/app3.png">
+<img align="center" width="750" src="docs/app31.png">
 
 ## Demo Environment provisioning
 
