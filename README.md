@@ -1,6 +1,6 @@
-# Demo 7 - Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes
+# Demo 8 - Managing Compliance with Compliance Operator and Compliance in Advanced Cluster Security for Kubernetes
 
-<img align="center" width="750" src="docs/app31.png">
+<img align="center" width="750" src="docs/app32.png">
 
 ## Demo Environment provisioning
 
@@ -72,14 +72,4 @@ patty.bouvier             : 1
 ```
 
 the 1, means that the traffic is OK, and the 0 are the NOK.
-
-## Securing Ingress Traffic with Ingress Controllers and NodeSelectors
-
-
-
-
-
-
-
-
 
