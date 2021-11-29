@@ -7,7 +7,7 @@ spec:
   generators:
   - git:
       repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-      revision: egressfw
+      revision: networkacs
       directories:
       - path: apps/simpson-bouvier/overlays/*
   template:
@@ -21,7 +21,7 @@ spec:
           selfHeal: true
       source:
         repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-        targetRevision: egressfw
+        targetRevision: networkacs
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
