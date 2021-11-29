@@ -9,14 +9,14 @@ We can use an egress firewall to limit the external hosts that some or all pods 
 * A pod cannot reach specified internal subnets or hosts outside the OpenShift Container Platform cluster.
 * A pod can connect to only specific external hosts.
 
+<img align="center" width="450" src="docs/app6.png">
+
 We configure an egress firewall policy by creating an EgressFirewall custom resource (CR) object. The egress firewall matches network traffic that meets any of the following criteria:
 
 * An IP address range in CIDR format
 * A DNS name that resolves to an IP address
 * A port number
 * A protocol that is one of the following protocols: TCP, UDP, and SCTP
-
-<img align="center" width="450" src="docs/app6.png">
 
 ## Demo Environment provisioning
 
