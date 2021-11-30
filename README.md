@@ -22,7 +22,7 @@ Once the RHACS is installed the first compliance scan needs to be executed to en
 
 * Run compliance scanner:
 
-<img align="center" width="300" src="docs/app5.png">
+<img align="center" width="800" src="docs/app5.png">
 
 * Compliance Result:
 
@@ -40,7 +40,7 @@ Each standard represents a series of controls, with guidance provided by StackRo
 
 * Click on Control 1.1.4, “Requirements for a firewall…”
 
-<img align="center" width="800" src="docs/app7.png">
+<img align="center" width="300" src="docs/app7.png">
 
 For example, PCI-DSS has controls that refer to firewalls and DMZ - not exactly cloud-native
 
@@ -223,7 +223,7 @@ oc delete pods -l app.kubernetes.io/component=sensor -n stackrox
 
 * With the Sensor restarted, kick off a compliance scan in ACS to see the updated results:
 
-<img align="center" width="800" src="docs/app9.png">
+<img align="center" width="500" src="docs/app9.png">
 
 In the ACS User Interface, select Compliance from the left menu, and click Scan Environment in the top menu bar.
 The scan should only take a few seconds; once it's complete you should see entries for both the ACS built-in and compliance operator standards:
@@ -234,10 +234,10 @@ image::compliance/03_compliance_operator_in_acs.png[ACS 5, 500]
 
 * To see the detailed results, click on the name or bar of any of the standards. To investigate the results of the OpenShift CIS benchmark scan, for example, click ocp4-cis:
 
-<img align="center" width="600" src="docs/app10.png">
+<img align="center" width="800" src="docs/app10.png">
 
-For more information check the [Compliance Operator guide](https://docs.openshift.com/container-platform/4.8/security/compliance_operator/compliance-scans.html)
-]
+For more information check the [Compliance Operator guide](https://docs.openshift.com/container-platform/4.8/security/compliance_operator/compliance-scans.html).
+
 ## Configure Policy in ACS to Invoke Compliance related Controls
 
 The Built-in standards in ACS Compliance provide guidance on required configurations to meet each individual control. Standards like PCI, HIPAA, and NIST 800-190 are focused on workloads visible to ACS, and apply to all workloads running in any Kubernetes cluster that ACS is installed in.
@@ -259,7 +259,7 @@ built-in policies that detects if images with insecure tags are being used or if
 Therefore, the cluster is compliant if there are policies that are being enforced that discourages such images from being
 deployed."
 
-<img align="center" width="700" src="docs/app11.png">
+<img align="center" width="850" src="docs/app11.png">
 
 ### Enforce Policies that Meet Guidance for NIST Control 4.2.2
 
