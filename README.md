@@ -455,3 +455,6 @@ Marge is able to communicate with everyone because of the Network Policies of al
 ### 2.8. **Use Case 7** - Allow Openshift-Ingress Namespaces in Simpson Namespace
 
 TODO
+
+### 2.9. **Use Case 8** - Network Policies with UI
+TODO
