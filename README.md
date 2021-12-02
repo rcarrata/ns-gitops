@@ -39,49 +39,9 @@ oc get secret/openshift-gitops-cluster -n openshift-gitops -o jsonpath='\''{.dat
 
 NOTE: you can also login using the Openshift SSO because it's enabled using Dex OIDC integration.
 
-* Deploy the ApplicationSet containing the Applications to be secured:
-
-```sh
-oc apply -f argo-apps/dev-env-apps.yaml
-```
-
-* Check that the applications are deployed properly in ArgoCD:
-
-<img align="center" width="750" src="docs/app1.png">
-
-* Check the pods are up && running:
-
-```sh
-oc get pods -o wide -n simpson
-oc get pods -o wide -n bouvier
-```
-
-* Check that the apps are working properly:
-
-```sh
-oc -n bouvier exec -ti deploy/patty-deployment -- ./container-helper check
-oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
-oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
-oc -n simpson exec -ti deploy/selma-deployment -- ./container-helper check
-```
-
-* You can check each Argo Application in ArgoCD:
-
-<img align="center" width="750" src="docs/app2.png">
-
-* As you can check all the communications are allowed between microservices:
-
-```sh
-marge.simpson             : 1
-selma.bouvier             : 1
-patty.bouvier             : 1
-```
-
-the 1, means that the traffic is OK, and the 0 are the NOK.
-
 ## Implementing Network Security Zones in OpenShift
 
-In this demo we are going to host the Ingress Router in dedicated nodes (front-end nodes), the simpson apps into the application nodes and the bouvier app in the backend nodes.
+In this demo we are going to host the Ingress Router in dedicated nodes (front-end nodes) along with the "patty" app, the "selma" app into the application nodes and the simpson app in the backend nodes.
 
 
 
@@ -92,11 +52,13 @@ The steps for this demo are:
 
 1- Create new front-end and application nodes
 
+2- Prepare the external connectivity
 
-2- Move the Ingress Router to front-end nodes and "simpson" app to application nodes
+3- Create the Ingress Router and "patty" app into front-end nodes and move "selma" app to application nodes
 
+4- Create the apps with the "patty" app into front-end nodes and move "selma" app to application nodes
 
-3- Setup network policy rules
+5- Setup network policy rules
 
 
 ### Creating new front-end and application nodes
@@ -198,7 +160,156 @@ ocp-8ncgh-worker-0-sz7qh   Ready    application-worker,worker   7m37s   v1.22.1+
 ocp-8ncgh-worker-0-v644c   Ready    worker
 ```
 
-### Step 2: Moving the Ingress Router to front-end nodes and "simpson" app to application nodes
+In addition to the label, we are going to configure "Taints", so only the applications with the specific "Tolerations" will be allowed to run on those nodes.
+
+Any workload that does not have zone=frontend label won't be allowed to be scheduled in the frontend nodes, and same thing for the zone=application in the application nodes:
+
+
+```shell
+oc adm taint nodes ocp-8ncgh-worker-0-27zvs zone=frontend:NoSchedule
+oc adm taint nodes ocp-8ncgh-worker-0-gctph zone=frontend:NoSchedule
+oc adm taint nodes ocp-8ncgh-worker-0-nvt78 zone=application:NoSchedule
+oc adm taint nodes ocp-8ncgh-worker-0-sz7qh zone=application:NoSchedule
+```
 
 
 
+### Step 2: Preparing the external connectivity
+
+
+
+We are going to create a new Ingress Router for the bouvier namespace similary as we did in [Demo 5 - Securing Ingress Traffic with Ingress Controllers and NodeSelectors using GitOps](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/ingress). You can find a copy of the steps below.
+
+
+For the new Ingress controller we need to complete two additioanl external configurations:
+
+* We need to include a new subdomain that must be resolvable in the DNS
+
+* We need to configure a way to reach out to the nodes that will host the new Routers.
+
+The configuration of how we are reaching out to the new nodes will be different depending on the platform that you are using because when you deploy OpenShift in on-premise, if you don't use something like [MetalLB](https://docs.openshift.com/container-platform/latest/networking/metallb/about-metallb.html), you won't be able to use the LoadBalancerService type in your Kubernetes services (which it's useful to automate publishing of services running on Kubernetes).
+
+In summary, if you deploy OpenShift in a Cloud, your Ingress Controller routers will be published directly in a Load Balancer using the LoadBalancerService, but if you don't have LoadBalancerService service type the Router will be published using HostNetwork, which means that you will need to configure the method to reach out to the nodes hosting the new Routers in addition to the DNS configuration.
+
+
+You can check the publishing method by reviewing the default Ingress Controller, in this case we are using hostnetwork:
+
+```shell
+$ oc get pod -n openshift-ingress router-default-7869647cbd-48w5c -o yaml | grep -i hostnetwork
+
+    openshift.io/scc: hostnetwork
+        f:hostNetwork: {}
+  hostNetwork: true
+```
+
+For this demo, we will make it easy and we are not going to configure any Load Balancer, but just a simple round-robin DNS resolution pointing to the IPs of the new nodes.
+
+In order to know the IPs of the new nodes:
+
+```shell
+oc get node <node name> -o jsonpath='{.status.addresses}{"\n"}'
+```
+
+We configure a new `*.frontend.ocp.my.lab` wildcard subdomain in our DNS (ok, ok, you can make it even simplier configuring a simple `/etc/hosts` entry...) poiting to the IPs of the new nodes.
+
+
+
+### Step 3: Creating the new Ingress Router 
+
+Create the new Ingress Controllers along with some test routes:
+
+```sh
+oc apply -f argo-apps/seczones-frontend.yaml
+```
+
+It's important to understand a couple of point regarding these objects.
+
+After the deployment of the new Ingress Controller, we will have to split the usage between the default and the new Ingress Controller. You can select the routes that will be published by an Ingress Controller in two ways:
+
+* Using routeSelector: Users can use a label to choose when to publish the route in this Ingress Controller
+
+* Using namespaceSelector: Certain namespaces with this label will always publish their routes in this Ingress Controller
+
+In this demo we are going to use the labels `zone=frontend` as routeSelector.
+
+If you want to take a look to the new Ingress, where it is included the subdomain along with the nodeSelector and the namespaceSelector:
+
+
+```yaml
+apiVersion: operator.openshift.io/v1
+kind: IngressController
+metadata:
+  name: frontend-ingress
+  namespace: openshift-ingress-operator
+spec:
+  endpointPublishingStrategy:
+    type: HostNetwork 
+  domain: frontend.ocp.my.lab
+  replicas: 2
+  nodePlacement:
+    nodeSelector:
+      matchLabels:
+        node-role.kubernetes.io/frontend-worker: ""
+  routeSelector:
+    matchExpressions:
+      - key: zone
+        operator: In
+        values:
+        - frontend
+```
+
+You can check how the new router pods are created in the new front-end nodes:
+
+```shell
+$ oc get pods -n openshift-ingress -o wide
+
+
+```
+
+
+### Step 4: Creating the apps with the "patty" app into front-end nodes and move "selma" app to application nodes
+
+
+Deploy the ApplicationSet containing the Applications to be secured:
+
+```sh
+oc apply -f argo-apps/dev-env-apps.yaml
+```
+
+Check that the applications are deployed properly in ArgoCD:
+
+<img align="center" width="750" src="docs/app1.png">
+
+Check the pods are up && running:
+
+```sh
+oc get pods -o wide -n simpson
+oc get pods -o wide -n bouvier
+```
+
+Check that the apps are working properly:
+
+```sh
+oc -n bouvier exec -ti deploy/patty-deployment -- ./container-helper check
+oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
+oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
+oc -n simpson exec -ti deploy/selma-deployment -- ./container-helper check
+```
+
+You can check each Argo Application in ArgoCD:
+
+<img align="center" width="750" src="docs/app2.png">
+
+As you can check all the communications are allowed between microservices:
+
+```sh
+marge.simpson             : 1
+selma.bouvier             : 1
+patty.bouvier             : 1
+```
+
+the 1, means that the traffic is OK, and the 0 are the NOK.
+
+
+
+### Step 5: Setup network policy rules
