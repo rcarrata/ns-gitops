@@ -1,17 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: simpson-egressip
+  name: simpson-ingress
   namespace: openshift-gitops
 spec:
   destination:
-    namespace: simpson
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: egressip/overlays/egressip-simpson
+    path: ingress/overlays/simpson/*
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-    targetRevision: egressip
+    targetRevision: ingress
   syncPolicy:
     automated:
       prune: true
