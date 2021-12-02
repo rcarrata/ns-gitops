@@ -81,10 +81,18 @@ the 1, means that the traffic is OK, and the 0 are the NOK.
 
 ## Implementing Network Security Zones in OpenShift
 
+The steps for this demo are:
+
+1- Create new front-end and application nodes
 
 
+2- Move the Ingress Router to front-end nodes and "simpson" app to application nodes
 
 
+3- Setup network policy rules
+
+
+### Creating new front-end and application nodes
 
 
 
