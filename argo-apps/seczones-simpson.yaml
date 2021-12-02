@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bouvier-egressip
+  name: simpson-seczones
   namespace: openshift-gitops
 spec:
   destination:
-    namespace: bouvier
+    namespace: simpson
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: egressip/overlays/egressip-bouvier
+    path: seczones/overlays/seczones-simpson
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
-    targetRevision: egressip
+    targetRevision: seczones
   syncPolicy:
     automated:
       prune: true
