@@ -321,7 +321,7 @@ as expected to the Bouvier namespace, only Marge it's allowed to communicate, an
 * Delete the netpol for apply the other use cases
 
 ```
-oc patch app -n openshift-gitops bouvier-netpols  -p '{"metadata": {"finalizers": ["resources -finalizer.argocd.argoproj.io"]}}' --type merge
+oc patch app -n openshift-gitops bouvier-netpols  -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge
 
 oc delete -n openshift-gitops application bouvier-netpols
 ```
