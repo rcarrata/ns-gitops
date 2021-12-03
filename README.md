@@ -365,7 +365,7 @@ Let's apply the network policies:
 
 
 ```sh
-
+oc apply -f argo-apps/seczones-netpolicy.yaml
 ```
 
 Now you can check the connectivity status:
