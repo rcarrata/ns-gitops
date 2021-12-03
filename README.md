@@ -1,4 +1,4 @@
-# Demo 9 - ACM GitOps with OpenShift GitOps
+# Demo 8 - Generate and Manage ApplicationSets of ArgoCD/OpenShift-GitOps in ACM 
 
 * https://github.com/open-cluster-management/rhacm-docs/blob/2.4_stage/applications/gitops_config.adoc
 
