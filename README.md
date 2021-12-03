@@ -73,7 +73,7 @@ patty.bouvier             : 1
 
 the 1, means that the traffic is OK, and the 0 are the NOK.
 
-## Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes
+# Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes
 
 ### Install ACM thought GitOps
 
@@ -105,6 +105,31 @@ NAME        HUB ACCEPTED   MANAGED CLUSTER URLS                                 
 aws-sub2    true           https://api.aws-sub2.8t4h4.sandbox6.opentlc.com:6443    True     True        6h42m
 aws-subs1   true           https://api.aws-subs1.8t4h4.sandbox6.opentlc.com:6443   True     True        7h6m
 ```
+
+* Generate a ManagedClusterSet.
+
+* In the ClustersSets tab appears the clustersets:
+
+<img align="center" width="750" src="docs/app7.png">
+
+<img align="center" width="750" src="docs/app8.png">
+
+<img align="center" width="750" src="docs/app9.png">
+
+<img align="center" width="750" src="docs/app10.png">
+
+<img align="center" width="750" src="docs/app11.png">
+
+* In the tab of the ManagedClusterSet, go to Submariner Addons and Click Install Submariner add-ons. Then select the clusters managed that you will install submariner:
+
+<img align="center" width="750" src="docs/app12.png">
+
+* Then introduce the Access Key, Secret Access Key of each cluster managed for enable the autoinstall of the prerequisites.
+
+<img align="center" width="750" src="docs/app13.png">
+
+
+* With CLI:
 
 ```sh
 rm -rf /var/tmp/acm-lab-kubeconfig
@@ -241,8 +266,6 @@ I1201 15:47:04.871121       1 base_controller.go:72] Caches are synced for Subma
 I1201 15:47:04.871179       1 base_controller.go:109] Starting #1 worker of SubmarinerBrokerCRDsController controller ...
 ```
 
-### 
-
 * [Add ClusterSet into ACM Hub](https://github.com/open-cluster-management/rhacm-docs/blob/2.4_stage/clusters/managedclustersets.adoc#creating-a-managedclusterset-by-using-the-command-line)
 
 ```sh
@@ -363,7 +386,7 @@ Connection: keep-alive
 ETag: "6193c877-264"
 Accept-Ranges: bytes
 
-bash-5.0# curl -w "dns_resolution: %{time_namelookup}, tcp_established: %{time_connect}, TTFB: %{time_starttransfer}\n" aws-subs1.nginx.default.svc.clusterset.local:8080 -o /dev/null -s 
+bash-5.0# curl -w "dns_resolution: %{time_namelookup}, tcp_established: %{time_connect}, TTFB: %{time_starttransfer}\n" aws-subs1.nginx.default.svc.clusterset.local:8080 -o /dev/null -s
 
 dns_resolution: 0.001939, tcp_established: 0.093243, TTFB: 0.183298
 ```
