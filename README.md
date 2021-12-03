@@ -47,4 +47,6 @@ NOTE: each demo it's in a specific branch for avoiding overlappings, so execute 
 
 * [Demo 7 - Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/submariner)
 
-* [Demo 8 - Managing Compliance with Compliance Operator and Compliance in Advanced Cluster Security for Kubernetes](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/compliance)
+* [Demo 8 - Generate and Manage ApplicationSets of ArgoCD/OpenShift-GitOps in ACM  ](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/acmgitops)
+
+* [Demo 9 - Managing Compliance with Compliance Operator and Compliance in Advanced Cluster Security for Kubernetes](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/compliance)
