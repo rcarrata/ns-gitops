@@ -172,6 +172,25 @@ oc adm taint nodes ocp-8ncgh-worker-0-nvt78 zone=application:NoSchedule
 oc adm taint nodes ocp-8ncgh-worker-0-sz7qh zone=application:NoSchedule
 ```
 
+Since the new IngressControllers will be running on the frontend workers, you must include the Tolaration in the openshift-ingress namespace
+oc edit namespace openshift-ingress
+
+```shell
+$ oc edit namespace openshift-ingress
+```
+
+
+```yaml
+...
+  annotations:
+    openshift.io/node-selector: ''
+    openshift.io/sa.scc.mcs: 's0:c24,c4'
+    openshift.io/sa.scc.supplemental-groups: 1000560000/10000
+    openshift.io/sa.scc.uid-range: 1000560000/10000
+    scheduler.alpha.kubernetes.io/defaultTolerations: '[{"Key": "zone", "Operator":"Equal", "Value": "frontend", "effect": "NoSchedule"}]'
+  managedFields:
+ ...
+```
 
 
 ### Step 2: Preparing the external connectivity
@@ -263,7 +282,11 @@ You can check how the new router pods are created in the new front-end nodes:
 ```shell
 $ oc get pods -n openshift-ingress -o wide
 
-
+NAME                                       READY   STATUS              RESTARTS   AGE   IP               NODE                       NOMINATED NODE   READINESS GATES
+router-default-5ff4dfcf6-6gc8g             1/1     Running             0          14h   192.168.126.52   ocp-xtxqn-worker-0-xq7jh   <none>           <none>
+router-default-5ff4dfcf6-tjnh8             1/1     Running             0          33m   192.168.126.51   ocp-xtxqn-worker-0-x2zsg   <none>           <none>
+router-ingresscontroller-c58d9bff6-8w972   0/1     ContainerCreating   0          3s    192.168.126.54   ocp-xtxqn-worker-0-8c6mc   <none>           <none>
+router-ingresscontroller-c58d9bff6-gnccv   0/1     ContainerCreating   0          4s    192.168.126.55   ocp-xtxqn-worker-0-mfp6q   <none>           <none>
 ```
 
 
@@ -293,7 +316,7 @@ Check that the apps are working properly:
 oc -n bouvier exec -ti deploy/patty-deployment -- ./container-helper check
 oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
 oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
-oc -n simpson exec -ti deploy/selma-deployment -- ./container-helper check
+oc -n simpson exec -ti deploy/marge-deployment -- ./container-helper check
 ```
 
 You can check each Argo Application in ArgoCD:
@@ -311,5 +334,56 @@ patty.bouvier             : 1
 the 1, means that the traffic is OK, and the 0 are the NOK.
 
 
+You can see how the "patty" app is running on the frontend nodes, "selma" app in the application nodes, and both "homer" and "marge" in the internal workers:
+
+```sh
+$ oc get pods -n bouvier -o wide
+
+NAME                                READY   STATUS    RESTARTS   AGE     IP           NODE                       NOMINATED NODE   READINESS GATES
+patty-deployment-567947cd5f-vntf6   1/1     Running   0          64m     10.130.2.6   ocp-xtxqn-worker-0-8c6mc   <none>           <none>
+selma-deployment-885dc4769-wcxdx    1/1     Running   0          3m30s   10.129.4.6   ocp-xtxqn-worker-0-8dzk9   <none>           <none>
+```
+
+```sh
+$ oc get pods -n simpson -o wide
+NAME                                READY   STATUS    RESTARTS   AGE     IP            NODE                       NOMINATED NODE   READINESS GATES
+homer-deployment-5b7857cc48-cshhk   1/1     Running   0          3m22s   10.128.2.63   ocp-xtxqn-worker-0-xq7jh   <none>           <none>
+marge-deployment-75474c9ff-w4bmf    1/1     Running   0          3m26s   10.128.2.62   ocp-xtxqn-worker-0-xq7jh   <none>           <none>
+```
+
+
 
 ### Step 5: Setup network policy rules
+
+Last step is to prevent connectivity between zones. Ingress router will be able to talk with frontend zone applications, then those appliactions will be able to talk to application zone, and application zone with the internal (default) zone. The rest of communitations will be dropped, so we enforce this communication
+
+```sh
+Router --> Frontend zone APP --> Application zone APP --> Internal zone App
+```
+
+Let's apply the network policies:
+
+
+```sh
+
+```
+
+Now you can check the connectivity status:
+
+
+```sh
+oc -n bouvier exec -ti deploy/patty-deployment -- ./container-helper check
+oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
+oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
+oc -n simpson exec -ti deploy/marge-deployment -- ./container-helper check
+```
+
+And you can also check that only the frontend route (created for patty APP which is located in the frontend zone) is working.
+
+```sh
+
+```
+
+```sh
+
+```

@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bouvier-seczones
+  name: seczones-frontend
   namespace: openshift-gitops
 spec:
   destination:
@@ -9,7 +9,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: seczones/overlays/seczones-bouvier
+    path: seczones/overlays/frontend
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
     targetRevision: seczones
   syncPolicy:
