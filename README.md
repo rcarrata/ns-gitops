@@ -2,86 +2,37 @@
 
 <img align="center" width="750" src="docs/app31.png">
 
-## Demo Environment provisioning
-
-We will be using an example microservices, where we have two main namespace "Simpson" and "Bouvier"
-and two microservices deployed in each namespace:
-
-<img align="center" width="750" src="docs/app0.png">
-
-Marge and Homer microservices will be running in the Simpson namespace and Selma and Patty microservices will be running in the Bouvier namespace.
-
-* Provision Namespace and ArgoProjects for the demo:
-
-```sh
-oc apply -k argo-projects/
-```
-
-NOTE: if you deployed in the early exercise this application, you can skip to the Egress Firewall step directly.
-
-* Login to the ArgoCD Server:
-
-```sh
-echo https://$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}{"\n"}')
-```
-
-* Use admin user with the password:
-
-```sh
-oc get secret/openshift-gitops-cluster -n openshift-gitops -o jsonpath='\''{.data.admin\.password}'\'' | base64 -d
-```
-
-NOTE: you can also login using the Openshift SSO because it's enabled using Dex OIDC integration.
-
-* Deploy the ApplicationSet containing the Applications to be secured:
-
-```sh
-oc apply -f argo-apps/dev-env-apps.yaml
-```
-
-* Check that the applications are deployed properly in ArgoCD:
-
-<img align="center" width="750" src="docs/app1.png">
-
-* Check the pods are up && running:
-
-```sh
-oc get pods -o wide -n simpson
-oc get pods -o wide -n bouvier
-```
-
-* Check that the apps are working properly:
-
-```sh
-oc -n bouvier exec -ti deploy/patty-deployment -- ./container-helper check
-oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
-oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
-oc -n simpson exec -ti deploy/selma-deployment -- ./container-helper check
-```
-
-* You can check each Argo Application in ArgoCD:
-
-<img align="center" width="750" src="docs/app2.png">
-
-* As you can check all the communications are allowed between microservices:
-
-```sh
-marge.simpson             : 1
-selma.bouvier             : 1
-patty.bouvier             : 1
-```
-
-the 1, means that the traffic is OK, and the 0 are the NOK.
-
 # Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes
+
+Submariner is an open source tool that can be used with RHACM to provide direct networking between two or more Kubernetes clusters in your environment, either on-premises or in the cloud. Submariner
+connects multiple Kubernetes clusters in a way that is secure and performant.
+
+For doing that, Submariner flattens the networks between the connected clusters, and enables IP reachability between Pods and Services. Submariner also provides, via Lighthouse, service discovery capabilities.
+
+NOTE: The submariner-addon component is a Technology Preview feature.
+
+You can enable Submariner on the OpenShift clusters that are hosted in the following environments:
+
+* Amazon Web Services (AWS)
+* Google Cloud Platform
+* Microsoft Azure
+* IBM Cloud
+* Red Hat OpenShift Dedicated
+* VMware vSphere
+
+Submariner provides a Submariner component that you can deploy in your environment by using your hub cluster.
+
+## Prerequisites
 
 ### Install ACM thought GitOps
 
 * [ACM Lab Deploy](https://github.com/ocp-tigers/acm-lab-deploy/blob/master/assets/stepbystep.md)
 
-### Create AWS Clusters
+### Create AWS Clusters from ACM
 
-* [Add AWS Credentials into ACM Hub](https://github.com/open-cluster-management/rhacm-docs/blob/2.4_stage/credentials/credential_aws.adoc)
+* First [add AWS Credentials into ACM Hub](https://github.com/open-cluster-management/rhacm-docs/blob/2.4_stage/credentials/credential_aws.adoc). Be careful with the AWS Access ID and AWS Secret ID (not encoded in bas64).
+
+* Check that the managed-clusters object reflects the local-cluster:
 
 ```sh
 oc get managedclusters
@@ -89,15 +40,17 @@ NAME            HUB ACCEPTED   MANAGED CLUSTER URLS                             
 local-cluster   true           https://api.cluster-8t4h4.xxx.sandbox6.opentlc.com:6443   True     True        51m
 ```
 
-* [https://github.com/open-cluster-management/rhacm-docs/blob/2.4_stage/clusters/create_ocp_aws.adoc#creating-your-cluster-with-the-console](Create AWS Console)
+* Generate two clusters of [OpenShift AWS in ACM with the Console](https://github.com/open-cluster-management/rhacm-docs/blob/2.4_stage/clusters/create_ocp_aws.adoc#creating-your-cluster-with-the-console):
 
 * aws-subs1:
 
 <img align="center" width="750" src="docs/app4.png">
 
-* aws-subs2:
+* aws-sub2:
 
 <img align="center" width="750" src="docs/app5.png">
+
+Check that the managedclusters are generated properly:
 
 ```sh
 oc get managedclusters -l environment=submariner
@@ -106,19 +59,18 @@ aws-sub2    true           https://api.aws-sub2.8t4h4.sandbox6.opentlc.com:6443 
 aws-subs1   true           https://api.aws-subs1.8t4h4.sandbox6.opentlc.com:6443   True     True        7h6m
 ```
 
-* Generate a ManagedClusterSet.
+Important! The two cluster CIDRs (ServiceCIDR and ClusterCIDR) cannot overlap. The ClusterNetworks and ServiceNetworks for our clusters are the following:
 
-* In the ClustersSets tab appears the clustersets:
+* Cluster1 (aws-subs1): ClusterNetwork 10.128.0.0/14 and ServiceNetwork 172.30.0.0/16
+* Cluster1 (aws-sub2): ClusterNetwork 10.132.0.0/14 and ServiceNetwork 172.31.0.0/16
 
-<img align="center" width="750" src="docs/app7.png">
+## Deploy Submariner with the Console
 
-<img align="center" width="750" src="docs/app8.png">
+* [Deploy submariner with Console upstream docs](https://github.com/open-cluster-management/rhacm-docs/blob/2.4_stage/services/deploy_submariner.adoc#deploying-submariner-with-the-console)
 
-<img align="center" width="750" src="docs/app9.png">
+* Generate a ManagedClusterSet that contains the two clusters
 
-<img align="center" width="750" src="docs/app10.png">
-
-<img align="center" width="750" src="docs/app11.png">
+* In the ClustersSets tab appears the clustersets, select the ClusterSet that you've generated and contains the two clusters for enable the Submariner.
 
 * In the tab of the ManagedClusterSet, go to Submariner Addons and Click Install Submariner add-ons. Then select the clusters managed that you will install submariner:
 
@@ -128,8 +80,36 @@ aws-subs1   true           https://api.aws-subs1.8t4h4.sandbox6.opentlc.com:6443
 
 <img align="center" width="750" src="docs/app13.png">
 
+* Click Install to deploy Submariner on the selected managed clusters.
 
-* With CLI:
+It might take several minutes for the installation and configuration to complete. You can check the Submariner status in the list on the Submariner add-ons tab:
+
+**Connection status** indicates how many Submariner connections are established on the managed cluster.
+
+**Agent status** indicates whether Submariner is successfully deployed on the managed cluster. The console might report a status of Degraded until it is installed and configured.
+
+**Gateway nodes** labeled indicates how many worker nodes are labeled with the Submariner gateway label: submariner.io/gateway=true on the managed cluster.
+
+* In the tab Submariner Add-ons, we have this information
+
+<img align="center" width="750" src="docs/app10.png">
+
+Submariner is now deployed on the clusters (hopefully!)
+
+Now it's available in the Multi-Cluster Network Status, the status of the Submariner Addon:
+
+<img align="center" width="750" src="docs/app7.png">
+
+The healthy status reflects that All Submariner addons are in healthy state:
+
+<img align="center" width="750" src="docs/app8.png">
+
+* If we check the ClusterSet, in the Overview we'll see the Submariner Addons and the Managed Clusters,
+
+<img align="center" width="750" src="docs/app9.png">
+
+
+## Deploy Submariner with the UI
 
 ```sh
 rm -rf /var/tmp/acm-lab-kubeconfig
@@ -343,14 +323,35 @@ submariner-operator                                submariner-routeagent-ppvwx  
 submariner-operator                                submariner-routeagent-q8tt4                                       1/1     Running     0               11m
 ```
 
-### Deploy application for example
+## Checking the Submariner Service Discovery
+
+After Submariner is deployed into the same environment as your managed clusters, the routes are configured for secure IP routing between the pod and services across the clusters in the ManagedClusterSet.
+
+To make a service from a cluster visible and discoverable to other clusters in the ManagedClusterSet, you must create a ServiceExport object. After a service is exported with a ServiceExport object, you can access the the service by the following format: <service>.<namespace>.svc.clusterset.local.
+
+* Apply an instance of the nginx service on a managed cluster that is in the ManagedClusterSet by entering the following commands:
 
 ```sh
 oc config use cluster1
 oc -n default create deployment nginx --image=nginxinc/nginx-unprivileged:stable-alpine
 
 oc -n default expose service nginx --port=8080
+```
 
+* In the same cluster1, export the service by creating a ServiceExport entry that resembles the following content in the YAML file:
+
+```
+cat << EOF | kubectl apply -f -
+apiVersion: multicluster.x-k8s.io/v1alpha1
+kind: ServiceExport
+metadata:
+  name: nginx
+  namespace: default
+```
+
+* Check the ServiceExport for the nginx service:
+
+```
 oc get serviceexport nginx -o jsonpath='{.status}' | jq -r .
 {
   "conditions": [
@@ -372,6 +373,20 @@ oc get serviceexport nginx -o jsonpath='{.status}' | jq -r .
 }
 ```
 
+Seems that it’s working properly! All right!
+
+NOTE: Remember that the ServiceExport is used to specify which Services should be exposed across all clusters in the cluster set.
+
+* Now switch to the cluster2 in order to test the connectivity from the cluster2 to cluster1 services deployed:
+
+```sh
+oc config use-context cluster2
+
+Switched to context "cluster2".
+```
+
+To access a Service in a specific cluster (in our case cluster1 with name aws-sub1), deploy a test pod (we used the nettest image) and do a curl using the prefix the query with clusterid as follows:
+
 ```sh
 oc -n default run submariner-test --rm -ti --image quay.io/submariner/nettest -- /bin/bash
 
@@ -385,14 +400,36 @@ Last-Modified: Tue, 16 Nov 2021 15:04:23 GMT
 Connection: keep-alive
 ETag: "6193c877-264"
 Accept-Ranges: bytes
+```
 
+* Let’s perform a quick test for see the latency between the curl in the aws-sub2 cluster2 to the nginx in the aws-sub1 cluster1:
+
+```
 bash-5.0# curl -w "dns_resolution: %{time_namelookup}, tcp_established: %{time_connect}, TTFB: %{time_starttransfer}\n" aws-subs1.nginx.default.svc.clusterset.local:8080 -o /dev/null -s
 
 dns_resolution: 0.001939, tcp_established: 0.093243, TTFB: 0.183298
 ```
 
+* Check the logs back in the Nginx Pod of the first cluster (aws-sub1):
+
+
 ```sh
+oc config use-context cluster1
+Switched to context "cluster1".
+
 oc logs -n default -f --tail=2 deploy/nginx
 10.132.2.40 - - [01/Dec/2021:19:28:41 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.69.1" "-"
 10.132.2.40 - - [01/Dec/2021:19:29:51 +0000] "GET / HTTP/1.1" 200 612 "-" "curl/7.69.1" "-"
 ```
+
+## Deploy an Stateful Application and connect within different clusters with Submariner
+
+Now that we know that our submariner connectivities and tunnels work properly, and we understand a bit more about what’s happening behind the hood, let’s do our real business: connecting different microservices of our application spanned across different clusters. Cool, right?
+
+We will deploy a FrontEnd and a Redis with a master-slave replication
+
+The frontend will be deployed in the cluster1 with the Redis master and the and Redis slave in cluster2. Redis Master will replicate into the redis-slave using the serviceexport of the redis-slave.
+
+The frontend (GuestBook app), will connect as well to the ServiceExports of the Redis Master and Redis Slave for store and consume the data for our app.
+
+
