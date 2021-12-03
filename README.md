@@ -377,15 +377,3 @@ oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
 oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
 oc -n simpson exec -ti deploy/marge-deployment -- ./container-helper check
 ```
-
-And you can also check that only the frontend route (created for patty APP which is located in the frontend zone) is working.
-
-```sh
-$ curl -k https://selma-route-bouvier.apps.ocp.46.4.65.190.nip.io/
-
-```
-
-```sh
-$ curl -k https://patty-route-bouvier.frontend.ocp.my.lab/
-Patty
-```
