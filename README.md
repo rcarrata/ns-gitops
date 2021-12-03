@@ -432,4 +432,24 @@ The frontend will be deployed in the cluster1 with the Redis master and the and 
 
 The frontend (GuestBook app), will connect as well to the ServiceExports of the Redis Master and Redis Slave for store and consume the data for our app.
 
+```
+ oc config use-context hub
+```
+
+```
+oc apply -k redis-master-app/acm-resources
+```
+
+```
+oc apply -k redis-slave-app/acm-resources
+```
+
+```
+oc config use-context cluster1
+oc adm policy add-scc-to-user anyuid -z default -n guestbook
+
+oc config use-context cluster2
+oc adm policy add-scc-to-user anyuid -z default -n guestbook
+oc delete pod --all -n guestbook
+```
 
