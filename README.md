@@ -452,9 +452,8 @@ patty.bouvier             : 1
 as we can check Homer is only capable to communicate with Marge because of the Network Policies won't allow him to communicate to one except in the same namespace.
 Marge is able to communicate with everyone because of the Network Policies of allow, and the Bouvier Sisters are not able to communicate with Homer.
 
-### 2.8. **Use Case 7** - Allow Openshift-Ingress Namespaces in Simpson Namespace
+### 2.8. **Use Case 8** - Network Policies with UI
 
-TODO
+You can also use the UI to create Network Policies:
 
-### 2.9. **Use Case 8** - Network Policies with UI
-TODO
+<img align="center" width="750" src="docs/np-ui.gif">
