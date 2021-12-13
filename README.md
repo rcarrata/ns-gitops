@@ -475,3 +475,5 @@ oc delete -n openshift-gitops application simpson-netpols
 You can also use the UI to create Network Policies:
 
 <img align="center" width="750" src="docs/np-ui.gif">
+
+[Go to -> Demo 2 - Securing your Egress Traffic within your workloads with Egress Firewall using GitOps](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/egressfw)
