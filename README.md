@@ -280,3 +280,4 @@ $ curl patty-route-bouvier.bouvierapps.ocp.my.lab
 Patty
 ```
 
+[--> Next Demo 6 - Implementing Network Security Zones in OpenShift <--](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/seczones)
