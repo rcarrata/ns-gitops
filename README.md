@@ -230,7 +230,7 @@ The scan should only take a few seconds; once it's complete you should see entri
 
 * Check that the ocp4-cis report from the Compliance Operator is shown in ACS Compliance Dashboard:
 
-image::compliance/03_compliance_operator_in_acs.png[ACS 5, 500]
+<img align="center" width="500" src="docs/app9.png">
 
 * To see the detailed results, click on the name or bar of any of the standards. To investigate the results of the OpenShift CIS benchmark scan, for example, click ocp4-cis:
 
