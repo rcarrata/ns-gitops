@@ -377,3 +377,5 @@ oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
 oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
 oc -n simpson exec -ti deploy/marge-deployment -- ./container-helper check
 ```
+
+[--> Next Demo 7 - Securing communication between OpenShift Clusters with Submariner in Advanced Cluster Management for Kubernetes <--](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/submariner)
