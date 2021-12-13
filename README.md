@@ -75,7 +75,7 @@ oc get pods -o wide -n bouvier
 oc -n bouvier exec -ti deploy/patty-deployment -- ./container-helper check
 oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
 oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
-oc -n simpson exec -ti deploy/selma-deployment -- ./container-helper check
+oc -n simpson exec -ti deploy/marge-deployment -- ./container-helper check
 ```
 
 * You can check each Argo Application in ArgoCD:
