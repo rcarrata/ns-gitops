@@ -60,7 +60,7 @@ oc apply -f argo-apps/dev-env-apps.yaml
 
 * Check that the applications are deployed properly in ArgoCD:
 
-<img align="center" width="750" src="docs/app1.png">
+<img align="center" width="850" src="docs/app1.png">
 
 * Check the pods are up && running:
 
@@ -75,12 +75,12 @@ oc get pods -o wide -n bouvier
 oc -n bouvier exec -ti deploy/patty-deployment -- ./container-helper check
 oc -n bouvier exec -ti deploy/selma-deployment -- ./container-helper check
 oc -n simpson exec -ti deploy/homer-deployment -- ./container-helper check
-oc -n simpson exec -ti deploy/selma-deployment -- ./container-helper check
+oc -n simpson exec -ti deploy/marge-deployment -- ./container-helper check
 ```
 
 * You can check each Argo Application in ArgoCD:
 
-<img align="center" width="750" src="docs/app2.png">
+<img align="center" width="850" src="docs/app2.png">
 
 * As you can check all the communications are allowed between microservices:
 
@@ -124,7 +124,7 @@ patty.bouvier             : 1
 
 The Network Graph is a flow diagram, firewall diagram, and firewall rule builder in one.
 
-<img align="center" width="750" src="docs/app3.png">
+<img align="center" width="550" src="docs/app3.png">
 
 In the upper left you’ll see the dropdown for clusters so I can easily navigate between any of the clusters that are connected to ACS.
 
@@ -134,14 +134,14 @@ You can change the time frame in the upper right dropdown, and the legend at bot
 
 * Zoom in on Bouvier Namespace:
 
-<img align="center" width="750" src="docs/app8.png">
+<img align="center" width="550" src="docs/app8.png">
 
 As we zoom in, the namespace boxes show the individual deployment names
 
 * Click on **patty-deployment** pod.
 * Clicking on a deployment brings up details of the types of traffic observed including source or destination and ports.
 
-<img align="center" width="750" src="docs/app4.png">
+<img align="center" width="850" src="docs/app4.png">
 
 ### Network Flow Baseline
 
@@ -151,11 +151,11 @@ For this reason we will add the Homer Deployment network flows as "Anomalous Flo
 
 * Select the Homer deployments as Ingress and Egress:
 
-<img align="center" width="750" src="docs/app5.png">
+<img align="center" width="550" src="docs/app5.png">
 
 * Check the Anomalous Network flows, that need to be the 2 Homer deployments network flows (Ingress - Egress):
 
-<img align="center" width="750" src="docs/app6.png">
+<img align="center" width="650" src="docs/app6.png">
 
 as you can check the Traffic is two-way (Ingress - Egress) from the Simpson namespace, Port 8080, TCP to the Patty Deployment.
 
@@ -165,7 +165,7 @@ Now that we have defined what is our Network Baseline, where Homer deployments f
 
 An Alert on Baseline Violations, will add a Violation alert when a Anonymous Flows is detected. For doing that the "Alert on Baseline Violations" flag in the Baseline Settings needs to be enabled:
 
-<img align="center" width="750" src="docs/app7.png">
+<img align="center" width="650" src="docs/app7.png">
 
 * Run several times the run-checks.sh script for generate some traffic between the microservices:
 
@@ -175,15 +175,13 @@ bash run-checks.sh
 
 * Check the Violations tab for new Violation, and check for the Unauthorized Network Flows violation:
 
-<img align="center" width="750" src="docs/app11.png">
+<img align="center" width="850" src="docs/app11.png">
 
 * Check the Unauthorized Network Flow for the Patty Deployment:
 
-<img align="center" width="750" src="docs/app12.png">
+<img align="center" width="550" src="docs/app12.png">
 
 ### Network Policy Simulator
-
-<img align="center" width="450" src="docs/app9.png">
 
 The Network Policy Simulator is designed to help solve this problem by using the history of observed traffic to build firewall rules. Click on Generate and Simulate
 
@@ -214,7 +212,7 @@ This approach also reduces operational risk since there is no proprietary firewa
 
 <img align="center" width="750" src="docs/app14.png">
 
-<img align="center" width="450" src="docs/app15.png">
+<img align="center" width="250" src="docs/app15.png">
 
 * In the Network Graph, in the Bouvier namespace, click the Active Flows, and in the Selma Deployment click the Network Policies tab to see the network policies generated automatically by RHACS.
 
