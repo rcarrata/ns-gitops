@@ -455,4 +455,4 @@ Using the DNS feature assumes that the nodes and masters are located in a simila
 
 NOTE: use Caution when using DNS names in deny rules. The DNS interceptor will never work flawlessly and could allow access to a denied host if the DNS resolution on the node is different then in the master.
 
-[--> Next Demo 2 - Securing your Egress Traffic within your workloads with Egress Firewall using GitOps <--](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/egressfw)
+[--> Next Demo 3 - Demo 3 - Securing your Egress Traffic within your apps with Egress IPs using GitOps <--](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/egressfw)
