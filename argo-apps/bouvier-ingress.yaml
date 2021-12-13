@@ -8,7 +8,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: ingress/overlays/bouvier/*
+    path: ingress/overlays/bouvier/patty
     repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
     targetRevision: ingress
   syncPolicy:
