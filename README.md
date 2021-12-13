@@ -242,3 +242,5 @@ patty.bouvier             : 1
 ```
 
 if you check the Homer Connectivity, you can check that the connectivity from the Homer deployment to the Selma.Bouvier and Patty.Bouvier is NOT allowed, for this the ouput is zero.
+
+[--> Next Demo 5 - Securing Ingress Traffic with Ingress Controllers and NodeSelectors using GitOps <--](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/ingress)
