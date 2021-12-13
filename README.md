@@ -453,3 +453,4 @@ oc adm policy add-scc-to-user anyuid -z default -n guestbook
 oc delete pod --all -n guestbook
 ```
 
+[--> Next Demo 8 - Implementing Network Security Zones in OpenShift <--](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/acmgitops)
