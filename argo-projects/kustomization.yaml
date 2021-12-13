@@ -5,3 +5,4 @@ resources:
 - apps-project.yaml
 - devops-project.yaml
 - namespaces.yaml
+- rbac.yaml
