@@ -408,6 +408,14 @@ patty.bouvier             : 1
 
 As we can see the only communication that it's not allowed is FROM the Bouvier namespace to the Homer App as expected.
 
+* Delete the netpol for apply other use cases:
+
+```
+oc patch app -n openshift-gitops simpson-netpols  -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge
+
+oc delete -n openshift-gitops application simpson-netpols
+```
+
 ### 2.7. **Use Case 6** - Bouvier Netpols + Simpson Netpols
 
 * Now, we will add both Network Policies, the Bouvier AND the Simpson Network Policies:
@@ -451,6 +459,16 @@ patty.bouvier             : 1
 
 as we can check Homer is only capable to communicate with Marge because of the Network Policies won't allow him to communicate to one except in the same namespace.
 Marge is able to communicate with everyone because of the Network Policies of allow, and the Bouvier Sisters are not able to communicate with Homer.
+
+```
+oc patch app -n openshift-gitops bouvier-netpols  -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge
+
+oc delete -n openshift-gitops application bouvier-netpols
+
+oc patch app -n openshift-gitops simpson-netpols  -p '{"metadata": {"finalizers": ["resources-finalizer.argocd.argoproj.io"]}}' --type merge
+
+oc delete -n openshift-gitops application simpson-netpols
+```
 
 ### 2.8. **Use Case 8** - Network Policies with UI
 
