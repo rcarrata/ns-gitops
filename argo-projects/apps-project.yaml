@@ -1,13 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: apps-project
+  name: gpg-project
+  namespace: openshift-gitops
 spec:
   clusterResourceWhitelist:
   - group: '*'
     kind: '*'
+  description: GnuPG verification
   destinations:
   - namespace: '*'
     server: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  signatureKeys:
+  - keyID: 1482DE9FF62DE54B
   sourceRepos:
   - '*'
