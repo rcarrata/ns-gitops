@@ -48,6 +48,8 @@ kubectl -n gitea exec -ti $(kubectl get pod -n gitea -l deploymentconfig=gitea -
 
 ## Get User ID
 
+* Generate the token for the new gitea-admin created:
+
 ```sh
 export GTUID=$(curl -s -X GET ${gturl}/api/v1/users/${gtuser} -H "accept: application/json" -H
 "Authorization: token ${TOKEN}"  | jq -r .id)
@@ -61,11 +63,13 @@ TOKEN=$(curl -s -X POST https://${gturl}/api/v1/users/${gtadmin}/tokens -u ${gta
 
 * Get User ID
 
-```
+```sh
 export GTUID=$(curl -s -X GET ${gturl}/api/v1/users/${gtuser} -H "accept: application/json" -H "Authorization: token ${TOKEN}"  | jq -r .id)
 ```
 
 * Migrate repos
+
+```sh
 for repo in https://github.com/RedHatWorkshops/welcome-app https://github.com/RedHatWorkshops/welcome-deploy
 do
 	reponame=$(basename ${repo})
@@ -77,10 +81,11 @@ do
 	-H "Content-Type: application/json" -d \
 	"{\"clone_addr\":\"${repo}\",\"description\":\"\",\"issues\":false,\"milestones\":false,\"mirror\":false,\"private\":false,\"repo_name\":\"${reponame}\",\"uid\":${GTUID}}"
 done
+```
 
 * Create developer token
 
-```
+```sh
 export DTOKEN=$(curl -s -X POST ${gturl}/api/v1/users/${gtuser}/tokens -u ${gtuser}:${gtpass} -H "Content-Type: application/json" -d '{"name": "develtoken"}' | jq -r .sha1)
 ```
 
@@ -146,11 +151,11 @@ git push
 
 * Check in the Gitea server that the commit is properly sign with the GPG key imported in the early steps:
 
-<img align="center" width="750" src="docs/pic2.png">
+<img align="center" width="450" src="docs/pic2.png">
 
 * Click on the specific commit signed for get more details:
 
-<img align="center" width="750" src="docs/pic3.png">
+<img align="center" width="850" src="docs/pic3.png">
 
 ```
 If a project is configured to enforce signature verification, all applications associated with this project must have the commits in the source repositories signed with a GnuPG public key known to ArgoCD. ArgoCD will refuse to sync to any revision that does not have a valid signature made by one of the configured keys.
