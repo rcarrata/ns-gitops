@@ -22,7 +22,7 @@ cd charts/
 * Deploy the Helm Chart of Gitea in your cluster
 
 ```sh
-helm upgrade --install gitea --create-namespace -n gitea gitea/ --set db.password=redhat --set hostname=gitea.xxx.xxxx.rcarrata.com
+helm upgrade --install gitea --create-namespace -n gitea gitea/ --set db.password=redhat --set hostname=gitea.xxx.xxxx.xxx.com
 ```
 
 * Check that the Helm Chart of Gitea have been deployed properly:
@@ -110,7 +110,7 @@ NOTE: if you have not installed xclip you can copy & paste the gpg public key.
 ```sh
 echo $gturl
 
-https://gitea.apps.ocp4.rcarrata.com
+https://gitea.xxx.xxxx.xxx.com
 ```
 
 * Login with the user / password generated in the step before (gtuser and gtpass):
