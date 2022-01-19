@@ -22,7 +22,7 @@ cd charts/
 * Deploy the Helm Chart of Gitea in your cluster
 
 ```sh
-helm upgrade --install gitea --create-namespace -n gitea gitea/ --set db.password=redhat --set hostname=gitea.apps.ocp4.rcarrata.com
+helm upgrade --install gitea --create-namespace -n gitea gitea/ --set db.password=redhat --set hostname=gitea.xxx.xxxx.rcarrata.com
 ```
 
 * Check that the Helm Chart of Gitea have been deployed properly:
@@ -70,7 +70,7 @@ export GTUID=$(curl -s -X GET ${gturl}/api/v1/users/${gtuser} -H "accept: applic
 * Migrate repos
 
 ```sh
-for repo in https://github.com/RedHatWorkshops/welcome-app https://github.com/RedHatWorkshops/welcome-deploy
+for repo in https://github.com/RedHat-EMEA-SSA-Team/ns-gitops https://github.com/RedHat-EMEA-SSA-Team/ns-apps
 do
 	reponame=$(basename ${repo})
 	echo "Migrating Repo - ${reponame}"
