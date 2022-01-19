@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dev-nosigned
+  name: gitea
   namespace: openshift-gitops
 spec:
   destination:
@@ -9,9 +9,9 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: apps/bgd/overlays/bgdk
-    repoURL: http://gitea.apps.ocp4.rcarrata.com/gitea/ns-apps
-    targetRevision: app-of-apps
+    path: apps/gitea
+    repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
+    targetRevision: sign_commits
   syncPolicy:
     automated:
       prune: true
