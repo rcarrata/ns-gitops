@@ -36,8 +36,7 @@ gitea-db-1-deploy   0/1     Completed   0          3m49s
 gitea-db-1-h8w65    1/1     Running     0          3m48s
 ```
 
-# Due to https://github.com/go-gitea/gitea/issues/5376 issue is not possible to generate first user
-# by api
+NOTE: Due to https://github.com/go-gitea/gitea/issues/5376 issue is not possible to generate first user by api
 
 * Generate a gitea-admin with admin privileges:
 
