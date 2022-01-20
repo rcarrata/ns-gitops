@@ -200,7 +200,65 @@ As we described before, it is possible to configure ArgoCD to only sync against 
 
 If a project is configured to enforce signature verification, all applications associated with this project must have the commits in the source repositories signed with a GnuPG public key known to ArgoCD. ArgoCD will refuse to sync to any revision that does not have a valid signature made by one of the configured keys.
 
+By default, signature verification is enabled but not enforced. Verification of GnuPG signatures is only supported with Git repositories. It is not possible using Helm repositories.
 
+## Enforcing signature verification in ArgoCD
+
+To configure enforcing of signature verification, the following steps must be performed:
+
+Import the GnuPG public key(s) used for signing commits in ArgoCD
+Configure a project to enforce signature verification for given keys
+
+### Import the GnuPG public key(s) in ArgoCD
+
+* Extract the ArgoCD admin password and the full url of the ArgoCD server:
+
+```sh
+argoPass=$(oc get secret/openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)
+
+argoURL=$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}{"\n"}')
+```
+
+* Login to the ArgoCD instance with the argocd cli:
+
+```sh
+argocd login --insecure --grpc-web $argoURL  --username admin --password $argoPass
+'admin:login' logged in successfully
+```
+
+* Listing all configured keys:
+
+```sh
+argocd gpg list
+```
+
+* Export the public GPG key selected associated with the proper email:
+
+```
+cd ~/.gnupg
+gpg --output public.pgp --armor --export xxx@mail.com
+```
+
+* To import a the public GPG key to ArgoCD server:
+
+```
+argocd gpg add --from ~/.gnupg/public.pgp
+```
+
+* Check that the public GPG key is imported in the ArgoCD server:
+
+<img align="center" width="850" src="docs/pic3.png">
+
+
+If signature verification is enforced, ArgoCD will verify the signature using following strategy:
+
+    If target revision is a pointer to a commit object (i.e. a branch name, the name of a reference such as HEAD or a commit SHA), ArgoCD will perform the signature verification on the commit object the name points to, i.e. a commit.
+
+    If target revision resolves to a tag and the tag is a lightweight tag, the behaviour is same as if target revision would be a pointer to a commit object. However, if the tag is annotated, the target revision will point to a tag object and thus, the signature verification is performed on the tag object, i.e. the tag itself must be signed (using git tag -s).
+
+
+
+The controller will emit a ResourceComparison error if it tries to sync to a revision that is either not signed, or is signed by an unknown or not allowed public key.
 
 
 ## Links of Interest
