@@ -50,3 +50,5 @@ NOTE: each demo it's in a specific branch for avoiding overlappings, so execute 
 * [Demo 8 - Generate and Manage ApplicationSets of ArgoCD/OpenShift-GitOps in ACM  ](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/acmgitops)
 
 * [Demo 9 - Managing Compliance with Compliance Operator and Compliance in Advanced Cluster Security for Kubernetes](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/compliance)
+
+* [Demo 10 - Secure GitOps supply chain with GnuPG signature verification in ArgoCD](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/sign_commits)
