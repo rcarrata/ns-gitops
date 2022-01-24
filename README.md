@@ -10,7 +10,11 @@ By default, signature verification is enabled but not enforced.
 
 Verification of GnuPG signatures is only supported with Git repositories. It is not possible using Helm repositories.
 
-## Deploy Gitea Environment
+## 1. Deployment of a Gitea Server in Kubernetes / OpenShift
+
+We will use [Gitea Server](https://gitea.io) as our Git Server deployed in Kubernetes / OpenShift cluster. Gitea is a community managed lightweight code hosting solution written in Go.
+
+## 1. Deploy Gitea Environment in Kubernetes using Helm
 
 * Get the Helm Chart of Gitea:
 
@@ -25,6 +29,8 @@ cd charts/
 helm upgrade --install gitea --create-namespace -n gitea gitea/ --set db.password=redhat --set hostname=gitea.xxx.xxxx.xxx.com
 ```
 
+We can use also the [Gitea Upstream Chart](https://gitea.com/gitea/helm-chart/), in this case we've used this adapted chart for deploy into OpenShift, but you can use the official one as well in your K8s/OCP clusters.
+
 * Check that the Helm Chart of Gitea have been deployed properly:
 
 ```
@@ -36,11 +42,11 @@ gitea-db-1-deploy   0/1     Completed   0          3m49s
 gitea-db-1-h8w65    1/1     Running     0          3m48s
 ```
 
-NOTE: Due to https://github.com/go-gitea/gitea/issues/5376 issue is not possible to generate first user by api
+### 1.1 Configure the users and tokens in Gitea
 
-## Configure the users and tokens in Gitea
+Before to start playing with GPG Keys and Gitea, we need to set up the proper user / tokens and permissions.
 
-* Generate a gitea-admin with admin privileges:
+* Let's generate the Gitea Admin user for manage our Gitea Server from the console. Generate a gitea-admin user with admin privileges:
 
 ```sh
 export gturl=https://$(kubectl get route -n gitea gitea -o jsonpath='{.spec.host}')
@@ -48,26 +54,40 @@ export gturl=https://$(kubectl get route -n gitea gitea -o jsonpath='{.spec.host
 kubectl -n gitea exec -ti $(kubectl get pod -n gitea -l deploymentconfig=gitea --no-headers=true | awk '{ print $1 }') -- giteacmd admin user create --username gitea-admin --password redhat --email jim@redhat.com --admin
 ```
 
-* Generate the token for the new gitea-admin created:
+NOTE: Due to https://github.com/go-gitea/gitea/issues/5376 issue is not possible to generate first user by api
+
+* Generate and get the gitea-admin Application token:
 
 ```sh
-export GTUID=$(curl -s -X GET ${gturl}/api/v1/users/${gtuser} -H "accept: application/json" -H
-"Authorization: token ${TOKEN}"  | jq -r .id)
-```
-
-* Generate and Get token:
-
-```sh
+export gtadmin="gitea-admin"
+export gtpass="xxx"
 TOKEN=$(curl -s -X POST https://${gturl}/api/v1/users/${gtadmin}/tokens -u ${gtadmin}:${gtpass} -H "Content-Type: application/json" -d '{"name": "admintoken"}' -v | jq -r .sha1)
 ```
 
-* Get User ID:
+* Generate new regular user non-admin:
+
+```sh
+export gtuser="rcarrata"
+export gtpass="xxx"
+export gtemail="xxx@gmail.com
+
+curl -s -X POST ${gturl}/api/v1/admin/users \
+-H "accept: application/json" \
+-H "Authorization: token ${TOKEN}" \
+-H "Content-Type: application/json" -d \
+"{\"email\":\"${gtemail}\",\"login_name\":\"${gtuser}\",\"must_change_password\":false,\"password\":\"${gtpass}\",\"send_notify\":false,\"username\":\"${gtuser}\"}"
+
+```
+
+IMPORTANT: the gtemail / email used here, MUST be the same as your will have within your GPG Keys because will be checked afterwards when we add the public GPG keys within the Gitea Server:
+
+* Get user Id of the regular user:
 
 ```sh
 export GTUID=$(curl -s -X GET ${gturl}/api/v1/users/${gtuser} -H "accept: application/json" -H "Authorization: token ${TOKEN}"  | jq -r .id)
 ```
 
-* Migrate repos:
+* Migrate repos from the github repo to the Gitea Server:
 
 ```sh
 for repo in https://github.com/RedHat-EMEA-SSA-Team/ns-gitops https://github.com/RedHat-EMEA-SSA-Team/ns-apps
@@ -83,17 +103,19 @@ do
 done
 ```
 
-* Create developer token:
+* Create developer token to use them in steps after:
 
 ```sh
 export DTOKEN=$(curl -s -X POST ${gturl}/api/v1/users/${gtuser}/tokens -u ${gtuser}:${gtpass} -H "Content-Type: application/json" -d '{"name": "develtoken"}' | jq -r .sha1)
 ```
 
-## Configure the GPG Keys and link them within Gitea
+### 1.2 Configure the GPG Keys and link them within Gitea
+
+Now that we have all the users / permissions / tokens ready, it's time to generate the GPG keys and sync within the Gitea Server.
 
 * [Generate the GPG keys](https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key) in your laptop.
 
-* Extract the ID of your gpg key generated and associated with your uid:
+* Extract the ID of your gpg key generated and associated with your uid and email:
 
 ```sh
 KEY_ID=$(gpg --list-secret-keys --keyid-format=long | grep sec | cut -f2 -d '/' | awk '{ print $1}')
@@ -105,7 +127,7 @@ KEY_ID=$(gpg --list-secret-keys --keyid-format=long | grep sec | cut -f2 -d '/' 
 gpg --armor --export $KEY_ID | xclip
 ```
 
-NOTE: if you have not installed xclip you can copy & paste the gpg public key.
+NOTE: if you have not installed xclip you can copy & paste the gpg public key directly in the Gitea Server console.
 
 * Go to the gitea website deployed in your OCP/K8s cluster:
 
@@ -117,11 +139,15 @@ https://gitea.xxx.xxxx.xxx.com
 
 * Login with the user / password generated in the step before (gtuser and gtpass):
 
+<img align="center" width="750" src="docs/pic0.png">
+
 * Go to the Settings -> SSH/GPG Keys and Add New GPG Keys:
 
 <img align="center" width="750" src="docs/pic1.png">
 
 ## Signing the Commits in our Repo
+
+Now that we had setup the GPG Keys, it's time to sign our commits with our GPG Keys and check if we have this signature verification in our Gitea repo server.
 
 * Download the repository forked to the Gitea Server to introduce a change:
 
@@ -194,7 +220,7 @@ openshift-gitops-repo-server-6dc777c845-dxxhf                 1/1     Running   
 openshift-gitops-server-785b47d889-phrhp                      1/1     Running   0          41h
 ```
 
-## GnuPG signature verification
+## GnuPG signature verification in ArgoCD
 
 As we described before, it is possible to configure ArgoCD to only sync against commits that are signed in Git using GnuPG. Signature verification is configured on project level.
 
@@ -247,7 +273,33 @@ argocd gpg add --from ~/.gnupg/public.pgp
 
 * Check that the public GPG key is imported in the ArgoCD server:
 
-<img align="center" width="850" src="docs/pic3.png">
+<img align="center" width="850" src="docs/pic4.png">
+
+NOTE: Also you can [Manage Public GPG Keys in declarative setup](https://argo-cd.readthedocs.io/en/stable/user-guide/gpg-verification/#manage-public-keys-in-declarative-setup) to manage your own public keys within your Git repository.
+
+* After the uploading the keys with the argocd cli or with declarative setup we will have in the ArgoCD namespace (in this case because I've used OpenShift GitOps, I will have in that namespace, but in upstream we will have the argocd namespace as well), a ConfigMap resource with the public GnuPG key's ID as its name and the ASCII armored key data as string value:
+
+```sh
+kubectl get cm -n openshift-gitops argocd-gpg-keys-cm
+
+NAME                 DATA   AGE
+argocd-gpg-keys-cm   1      5m12s
+```
+
+## Configuring an ArgoCD Project to enforce signature verification
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 If signature verification is enforced, ArgoCD will verify the signature using following strategy:
