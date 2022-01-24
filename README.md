@@ -403,7 +403,7 @@ application.argoproj.io/dev-signed configured
 
 * After that the ArgoCD will apply the manifests that are located in the source repository in Gitea, in the branch of **sign_commits** that was signed with our GPG keys:
 
-<img align="center" width="850" src="docs/pic5.png">
+<img align="center" width="950" src="docs/pic5.png">
 
 as we can check the ArgoCD application is checking the signature that have the commit against the signature defined in the Key ID of the Argo Project. If matches, as in this example, it will sync OK.
 
@@ -421,19 +421,19 @@ Now it's the turn to show how Argo GPG Signature Verification can help us to ens
 
 *  Let's commit the changes introduced in the file, hacking our supply chain and introducing malicious code:
 
-<img align="center" width="850" src="docs/pic7.png">
+<img align="center" width="550" src="docs/pic7.png">
 
 in this case it's a message, but imagine that changes something critical in your production app, or try to gain access to other tools / systems...
 
 * If we check the repository, we can see that the commit was introduced by a the gitea-admin user and introduces something malicious:
 
-<img align="center" width="850" src="docs/pic8.png">
+<img align="center" width="650" src="docs/pic8.png">
 
 NOTE: We could introduce a change in the repository because we used gitea-admin user, and was an admin user. Gitea by default secures the repositories from changes that are not from allowed users or maintainers of the repo.
 
 * Let's check the ArgoCD Application if I introduced a change and it's synched properly:
 
-<img align="center" width="850" src="docs/pic9.png">
+<img align="center" width="550" src="docs/pic9.png">
 
 The state of the ArgoCD Application was in Sync Error! What happened?
 
@@ -445,7 +445,7 @@ Revision is not signed
 
 * If we check more details about the status of the Last Sync we can see like we received a ComparisonError output:
 
-<img align="center" width="850" src="docs/pic10.png">
+<img align="center" width="750" src="docs/pic10.png">
 
 The controller will emit a ResourceComparison error if it tries to sync to a revision that is either not signed, or is signed by an unknown or not allowed public key.
 
