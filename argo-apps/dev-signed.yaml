@@ -10,8 +10,8 @@ spec:
   project: gpg-project
   source:
     path: apps/bgd/overlays/bgdk
-    repoURL: http://gitea.apps.ocp4.rcarrata.com/gitea/ns-apps
-    targetRevision: app-of-apps
+    repoURL: https://gitea.apps.ocp4.rcarrata.com/rcarrata/ns-apps
+    targetRevision: sign_commits
   syncPolicy:
     automated:
       prune: true

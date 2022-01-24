@@ -145,7 +145,7 @@ https://gitea.xxx.xxxx.xxx.com
 
 <img align="center" width="750" src="docs/pic1.png">
 
-## Signing the Commits in our Repo
+## 1.3 Configure and Sign Commits in our Repo in Gitea Server
 
 Now that we had setup the GPG Keys, it's time to sign our commits with our GPG Keys and check if we have this signature verification in our Gitea repo server.
 
@@ -191,7 +191,7 @@ git push
 
 NOTE: the credentials will be asked, use the gtuser and gtpass credentials used to generate the user.
 
-* Check in the Gitea server that the commit is properly sign with the GPG key imported in the early steps:
+* Check in the Gitea server that the commit is properly signed with the GPG key, imported in the early steps:
 
 <img align="center" width="450" src="docs/pic2.png">
 
@@ -199,7 +199,11 @@ NOTE: the credentials will be asked, use the gtuser and gtpass credentials used 
 
 <img align="center" width="850" src="docs/pic3.png">
 
-## Deploy ArgoCD / OpenShift GitOps:
+With that, we tested that we can sign commits with our GPG keys in our laptop and we can have the signature verification in a Git server (Gitea), ensuring that the commit was signed from a valid user with the proper GPG keys.
+
+## 2. Deploy ArgoCD / OpenShift GitOps:
+
+Now we need to deploy an instance of ArgoCD or OpenShift GitOps. For that:
 
 * We need to install OpenShift GitOps in the ACM Hub with the Operator. You can follow the [official documentation for OpenShift GitOps](https://docs.openshift.com/container-platform/4.9/cicd/gitops/installing-openshift-gitops.html).
 
@@ -220,22 +224,22 @@ openshift-gitops-repo-server-6dc777c845-dxxhf                 1/1     Running   
 openshift-gitops-server-785b47d889-phrhp                      1/1     Running   0          41h
 ```
 
-## GnuPG signature verification in ArgoCD
+With that, we checked that our ArgoCD server is available to start doing GitOps cool stuff.
+
+## 3. GnuPG signature verification in ArgoCD
 
 As we described before, it is possible to configure ArgoCD to only sync against commits that are signed in Git using GnuPG. Signature verification is configured on project level.
 
 If a project is configured to enforce signature verification, all applications associated with this project must have the commits in the source repositories signed with a GnuPG public key known to ArgoCD. ArgoCD will refuse to sync to any revision that does not have a valid signature made by one of the configured keys.
 
-By default, signature verification is enabled but not enforced. Verification of GnuPG signatures is only supported with Git repositories. It is not possible using Helm repositories.
-
-## Enforcing signature verification in ArgoCD
-
 To configure enforcing of signature verification, the following steps must be performed:
 
-Import the GnuPG public key(s) used for signing commits in ArgoCD
-Configure a project to enforce signature verification for given keys
+1. Import the GnuPG public key(s) used for signing commits in ArgoCD
+2. Configure a project to enforce signature verification for given keys
 
-### Import the GnuPG public key(s) in ArgoCD
+### 3.1 Import the GnuPG public key(s) in ArgoCD
+
+Let's import our GPG public key for sign commits in our ArgoCD server.
 
 * Extract the ArgoCD admin password and the full url of the ArgoCD server:
 
@@ -275,9 +279,11 @@ argocd gpg add --from ~/.gnupg/public.pgp
 
 <img align="center" width="850" src="docs/pic4.png">
 
+After we have imported a GnuPG key, it may take a while until the key is propagated within the cluster, even if listed as configured.
+
 NOTE: Also you can [Manage Public GPG Keys in declarative setup](https://argo-cd.readthedocs.io/en/stable/user-guide/gpg-verification/#manage-public-keys-in-declarative-setup) to manage your own public keys within your Git repository.
 
-* After the uploading the keys with the argocd cli or with declarative setup we will have in the ArgoCD namespace (in this case because I've used OpenShift GitOps, I will have in that namespace, but in upstream we will have the argocd namespace as well), a ConfigMap resource with the public GnuPG key's ID as its name and the ASCII armored key data as string value:
+* After the uploading the keys with the argocd cli or with declarative setup we will have in the ArgoCD namespace, a ConfigMap resource with the public GnuPG key's ID as its name and the ASCII armored key data as string value:
 
 ```sh
 kubectl get cm -n openshift-gitops argocd-gpg-keys-cm
@@ -286,33 +292,161 @@ NAME                 DATA   AGE
 argocd-gpg-keys-cm   1      5m12s
 ```
 
-## Configuring an ArgoCD Project to enforce signature verification
+NOTE2: In this case because we've used OpenShift GitOps, we will have in that namespace, but in upstream we will have the argocd namespace as well)
 
+## 3.2 Configuring an ArgoCD Project to enforce signature verification
 
+Once we have imported the GnuPG keys to ArgoCD, we must now configure the project to enforce the verification of commit signatures with the imported keys in the early step.
 
+We can configure the ArgoCD projects in several ways, using the CLI, the console or in a declarative way.
 
+Let's use the declarative way to show how to define an ArgoCD Project with the GPG keys assigned.
 
+* Define an ArgoCD Project with the signatureKeys defined, specifying the KeyID from our GPG obtained in early steps:
 
+```sh
+cat argo-projects/apps-project.yaml
 
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: gpg-project
+  namespace: openshift-gitops
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  description: GnuPG verification
+  destinations:
+  - namespace: '*'
+    server: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  signatureKeys:
+  - keyID: xxxxE54B
+  sourceRepos:
+  - '*'
+```
 
+* Apply the Argo App Project definition:
 
+```sh
+kubectl apply -k argo-projects
 
+appproject.argoproj.io/gpg-project created
+```
 
+* Check the ArgoCD App Projects generated within our ArgoCD cluster:
 
+```
+kubectl get appproject -A
+NAMESPACE          NAME          AGE
+openshift-gitops   default       5d16h
+openshift-gitops   gpg-project   30s
+```
 
+* Check the ArgoCD AppProject signatureKeys, to check that we defined properly the signature Keys and it's reflected in the App Project:
 
+```sh
+kubectl get appproject -n openshift-gitops gpg-project -o jsonpath='{.spec.signatureKeys}'
+
+[{"keyID":"xxxE54B"}]
+```
+
+### 3.3 Deploying our workload using a ArgoCD enforcing signature verifications
 
 If signature verification is enforced, ArgoCD will verify the signature using following strategy:
 
-    If target revision is a pointer to a commit object (i.e. a branch name, the name of a reference such as HEAD or a commit SHA), ArgoCD will perform the signature verification on the commit object the name points to, i.e. a commit.
+* If target revision is a pointer to a commit object (i.e. a branch name, the name of a reference such as HEAD or a commit SHA), ArgoCD will perform the signature verification on the commit object the name points to, i.e. a commit.
 
-    If target revision resolves to a tag and the tag is a lightweight tag, the behaviour is same as if target revision would be a pointer to a commit object. However, if the tag is annotated, the target revision will point to a tag object and thus, the signature verification is performed on the tag object, i.e. the tag itself must be signed (using git tag -s).
+* If target revision resolves to a tag and the tag is a lightweight tag, the behaviour is same as if target revision would be a pointer to a commit object.
 
+To keep this demo simple, let's stick with the target revision to a commit object using a branch name like HEAD.
 
+Let's define our ArgoApp that will use the repo forked in our Gitea Server and the Argo Project that enforces the signature verification:
+
+```sh
+cat argo-apps/dev-signed.yaml
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-signed
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: openshift-gitops
+    server: https://kubernetes.default.svc
+  project: gpg-project
+  source:
+    path: apps/bgd/overlays/bgdk
+    repoURL: http://gitea.apps.xx.xxx.com/gitea/ns-apps
+    targetRevision: sign_commits
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+    - CreateNamespace=true
+```
+
+as we can check this ArgoApplication will use as source the repository forked in the Gitea server, will use the **gpg-project** that enforces the GPG signature verification and it's using the targetRevision sign_commits.
+
+We apply this Argo Application directly to our ArgoCD instance:
+
+```
+kubectl apply -k argo-apps/
+
+application.argoproj.io/dev-signed configured
+```
+
+* After that the ArgoCD will apply the manifests that are located in the source repository in Gitea, in the branch of **sign_commits** that was signed with our GPG keys:
+
+<img align="center" width="850" src="docs/pic5.png">
+
+as we can check the ArgoCD application is checking the signature that have the commit against the signature defined in the Key ID of the Argo Project. If matches, as in this example, it will sync OK.
+
+So we can ensure that it's me and not other person that signed that commit, and we ensure also that not wrong or malicious commits are pushed to our repository.
+
+## 4. Ensuring that our GitOps deployment supply chain in ArgoCD is protected using GPG Signature Verification
+
+In the step before we tested that our GitOps repository was synched and our application in the repository that ArgoCD application used as a source to deploy the workload used properly the signature verification of the GPG signed commits.
+
+Now it's the turn to show how Argo GPG Signature Verification can help us to ensure that GitOps supply chain is secured.
+
+* Login with the gitea-admin user in Gitea server, and let's introduce a change in the repository:
+
+<img align="center" width="850" src="docs/pic6.png">
+
+*  Let's commit the changes introduced in the file, hacking our supply chain and introducing malicious code:
+
+<img align="center" width="850" src="docs/pic7.png">
+
+in this case it's a message, but imagine that changes something critical in your production app, or try to gain access to other tools / systems...
+
+* If we check the repository, we can see that the commit was introduced by a the gitea-admin user and introduces something malicious:
+
+<img align="center" width="850" src="docs/pic8.png">
+
+NOTE: We could introduce a change in the repository because we used gitea-admin user, and was an admin user. Gitea by default secures the repositories from changes that are not from allowed users or maintainers of the repo.
+
+* Let's check the ArgoCD Application if I introduced a change and it's synched properly:
+
+<img align="center" width="850" src="docs/pic9.png">
+
+The state of the ArgoCD Application was in Sync Error! What happened?
+
+* As the message in the output revealed, the Argo Application failed to sync because the commit was not signed by the GPG Key expected, and shows:
+
+```
+Revision is not signed
+```
+
+* If we check more details about the status of the Last Sync we can see like we received a ComparisonError output:
+
+<img align="center" width="850" src="docs/pic10.png">
 
 The controller will emit a ResourceComparison error if it tries to sync to a revision that is either not signed, or is signed by an unknown or not allowed public key.
 
-
-## Links of Interest
-
-* [ArgoCD GnuPG Verification](https://argo-cd.readthedocs.io/en/stable/user-guide/gpg-verification/)
+So we're saved, even if the hacker get's access to our repository to write any rogue or malicious commit, ArgoCD will enforce the GPG Signature Verification against the commit signed (or not), securying in that way the GitOps Supply Chain.
