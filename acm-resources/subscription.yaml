@@ -1,0 +1,16 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: Subscription
+metadata:
+  name: pacman-sub
+  namespace: pacman
+  labels:
+    app: pacman-app
+  annotations:
+    apps.open-cluster-management.io/git-path: pacman
+    apps.open-cluster-management.io/git-branch: acm-gitops
+spec:
+  channel: pacman/pacman-ch
+  placement:
+    placementRef:
+      kind: PlacementRule
+      name: pacman-pr

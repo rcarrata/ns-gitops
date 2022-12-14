@@ -1,0 +1,9 @@
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  name: pacman-ch
+  namespace: pacman
+spec:
+  type: GitHub
+  pathname: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
