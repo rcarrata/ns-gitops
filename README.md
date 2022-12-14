@@ -28,6 +28,10 @@ Repository for deploy GitOps examples
 
 * [Demo 7 - Deploying Multi Clustering with ApplicationSets](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/multicluster)
 
+* [Demo 8 - Deploying Multi Clustering Applications with ACM GitOps](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/acm-gitops)
+
+* [Demo 9 - Generate and Manage ApplicationSets of ArgoCD/OpenShift-GitOps in ACM](https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/acmgitops)
+
 NOTE: each demo it's in a specific branch for avoiding overlappings, so execute git checkout
 "branch" to the specific branch in order to execute the commands.
 
