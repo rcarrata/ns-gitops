@@ -1,4 +1,4 @@
-# Demo 8 - Generate and Manage ApplicationSets of ArgoCD/OpenShift-GitOps in ACM
+# Demo 9 - Generate and Manage ApplicationSets of ArgoCD/OpenShift-GitOps in ACM
 
 From ACM version 2.3 you can manage [ApplicationSets from ArgoCD / OpenShift-GitOps](https://argocd-applicationset.readthedocs.io/en/stable/), having a single pane of glass to manage all of your GitOps Applications in a scalable way.
 
