@@ -1,6 +1,6 @@
 # NaaS using GitOps - Simple App Helm
 
-Repository for deploy GitOps examples
+Example for [deploying Helm Charts in ArgoCD](https://argo-cd.readthedocs.io/en/stable/user-guide/helm/)
 
 ## Simple Helm App
 
@@ -10,7 +10,7 @@ Repository for deploy GitOps examples
 helm repo add redhat-cop https://redhat-cop.github.io/helm-charts
 ```
 
-* Deploy the application with GitOps:
+* Deploy the application with GitOps in ArgoCD:
 
 ```
 oc apply -f pact-broker-helm.yaml
