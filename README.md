@@ -17,7 +17,9 @@ And how we can connect the ACM with the ApplicationSets of OpenShift GitOps for 
 
 * We need to install OpenShift GitOps in the ACM Hub with the Operator:
 
+```sh
 until oc apply -k https://github.com/RedHat-EMEA-SSA-Team/ns-gitops/tree/bootstrap/bootstrap ; do sleep 2; done
+```
 
 * You can also follow the [official documentation for OpenShift GitOps](https://docs.openshift.com/container-platform/4.9/cicd/gitops/installing-openshift-gitops.html)
 
@@ -85,7 +87,7 @@ NOTE: Only OpenShift clusters are registered to an Argo CD or OpenShift GitOps o
 * Create a GitOpsCluster custom resource to register the set of managed clusters from the placement decision to the specified instance of Argo CD or OpenShift GitOps:
 
 ```sh
-apiVersion: apps.open-cluster-management.io/v1alpha1
+apiVersion: apps.open-cluster-management.io/v1beta1
 kind: GitOpsCluster
 metadata:
   name: argo-acm-clusters
