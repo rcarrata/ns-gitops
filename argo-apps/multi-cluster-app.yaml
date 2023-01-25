@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: bgd
+  name: welcome-app-appset
   namespace: openshift-gitops
 spec:
   generators:
-  - clusters: {}
+    - clusters: {}
   template:
     metadata:
-      name: '{{name}}-bgd'
+      name: "{{name}}-welcome-app"
     spec:
       project: default
       syncPolicy:
@@ -18,7 +18,7 @@ spec:
       source:
         repoURL: https://github.com/RedHat-EMEA-SSA-Team/ns-apps
         targetRevision: multicluster
-        path: cluster-generator/overlays/dev/
+        path: cluster-generator/base/
       destination:
-        server: '{{server}}'
-        namespace: bgd
+        server: "{{server}}"
+        namespace: welcome-app
