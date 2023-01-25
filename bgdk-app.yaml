@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bgdk-app
+  name: bgdk-argocd-singleapp
   namespace: openshift-gitops
 spec:
   destination:
