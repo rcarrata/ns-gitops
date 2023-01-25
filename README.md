@@ -107,7 +107,7 @@ list of items found within the cluster secret.
 For delete the multicluster environment:
 
 ```
-oc delete applicationset -n openshift-gitops bgd
+oc delete applicationset -n openshift-gitops welcome-app-appset
 ```
 
 ## Links of interest
