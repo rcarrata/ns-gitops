@@ -34,7 +34,7 @@ After registering, we can deploy applications to those clusters using Applicatio
 ```sh
 cat acmgitops/managedclusterset.yaml
 
-apiVersion: cluster.open-cluster-management.io/v1alpha1
+apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: ManagedClusterSet
 metadata:
   name: all-openshift-clusters
@@ -52,7 +52,7 @@ metadata:
 ```sh
 cat managedclustersetbinding.yaml
 
-apiVersion: cluster.open-cluster-management.io/v1alpha1
+apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: ManagedClusterSetBinding
 metadata:
   name: all-openshift-clusters
@@ -66,7 +66,7 @@ oc apply -f managedclustersetbinding.yaml
 * In the namespace that is used in managed cluster set binding, create a placement custom resource to select a set of managed clusters to register to an ArgoCD or OpenShift GitOps operator instance:
 
 ```sh
-apiVersion: cluster.open-cluster-management.io/v1alpha1
+apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: Placement
 metadata:
   name: all-openshift-clusters
