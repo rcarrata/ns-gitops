@@ -14,7 +14,7 @@ spec:
     metadata:
       name: '{{path.basename}}'
     spec:
-      project: apps-project
+      project: appset-apps-project
       syncPolicy:
         automated:
           prune: true
