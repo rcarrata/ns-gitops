@@ -4,6 +4,12 @@ Repository for deploy GitOps examples
 
 ## Simple App GitOps
 
+* Checkout to the specific branch
+
+```md
+git checkout single-app
+```
+
 * Deploy the application with GitOps:
 
 ```
