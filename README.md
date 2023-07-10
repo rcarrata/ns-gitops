@@ -5,7 +5,7 @@ Repository for deploy GitOps examples
 ## Deploy Dev Environment
 
 ```
-oc apply -k deploy.yaml
+oc apply -k ./deploy
 ```
 
 ## Argo App of Apps Pattern
